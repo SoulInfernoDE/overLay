@@ -16,7 +16,7 @@ The launcher is inspired by the dock-based look of popular overlay platforms, bu
 
 ## First mod: Flint
 
-**Flint** is a Hearthstone companion with deck tracker, opponent tracker, Battlegrounds and Arena helpers. Its feature set and look follow Firestone, but Flint is an independent clean-room implementation. It will live in its own repository and be installed through the mod index.
+**Flint** is a Hearthstone companion with deck tracker, opponent tracker, Battlegrounds and Arena helpers. Its feature set and look follow Firestone, but Flint is an independent clean-room implementation. Its primary target is the **native Linux client** launched through [hearthstone-linux-gui](https://github.com/DawnMagnet/hearthstone-linux-gui) (no Wine); Wine/Proton and Windows are supported too. Flint will live in its own repository and be installed through the mod index.
 
 ## Repository layout
 

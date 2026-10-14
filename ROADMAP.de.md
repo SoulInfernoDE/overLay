@@ -10,7 +10,7 @@ overLay ist ein **quelloffener Overlay-Manager** für Spiele unter **Linux (nati
 
 - schlank, schnell, ohne Ballast. Die Oberfläche ist **stark an Overwolf angelehnt**, nutzt aber eigene Marke und eigene Assets.
 - Er verwaltet **Overlay-Mods** aus einem öffentlichen Index-Repository und aus beliebig vielen **eigenen Repo-URLs**.
-- Der erste Mod ist **Flint**, ein Hearthstone-Companion, der Aussehen und Funktionsumfang von **Firestone** nachbaut (clean-room, siehe Recherche §3.1).
+- Der erste Mod ist **Flint**, ein Hearthstone-Companion, der Aussehen und Funktionsumfang von **Firestone** nachbaut (clean-room, siehe Recherche §3.1). **Hauptziel von Flint ist der native Linux-Client**, gestartet über [hearthstone-linux-gui](https://github.com/DawnMagnet/hearthstone-linux-gui) (die offiziellen macOS-Spieldateien auf Unitys Linux-Player, ohne Wine, siehe Recherche §5.1). Wine/Proton und Windows werden ebenfalls unterstützt.
 
 ## 2. Leitprinzipien (nicht verhandelbar)
 
@@ -71,7 +71,7 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
 ### Phase 1: Host-Kern & Launcher-Oberfläche *(4–6 Wochen)*
 - [ ] Tauri-Shell mit **Tray-only-Modus** (keine WebView, solange das Fenster zu ist)
 - [ ] Launcher-UI nach Overwolf-Vorbild: Dock links, **Bibliothek**, **Store** (vorerst nur lokal), **Einstellungen**, eigene Titelleiste
-- [ ] **Spieleerkennung**: Prozesse unter Windows (WinAPI, kein `tasklist`-Polling), unter Linux über `/proc` mit Erkennung von Wine/Proton-Prozessen (`Hearthstone.exe` unter `wine64-preloader`/`wineserver`)
+- [ ] **Spieleerkennung**: Prozesse unter Windows (WinAPI, kein `tasklist`-Polling), unter Linux über `/proc` für den **nativen Client** (`Hearthstone.x86_64`) und für Wine/Proton-Prozesse (`Hearthstone.exe` unter `wine64-preloader`/`wineserver`)
 - [ ] Spiele-Katalog (`games/*.toml`): Prozessnamen, Fenstertitel, Launcher-Hinweise
 - [ ] Globale Hotkeys (Windows: RegisterHotKey; Linux: XDG GlobalShortcuts-Portal, Fallback X11)
 - [ ] Einstellungen persistent (TOML), Autostart optional
@@ -87,7 +87,7 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
   - **gamescope** (Steam Deck/Game Mode): External-Overlay-Atom, **später** (Phase 9)
 - [ ] Overlay-Ein-/Ausblenden per Hotkey (wie Overwolf), Toast-Benachrichtigungen
 - [ ] Widget-Positionen speichern (pro Spiel, pro Auflösung)
-- **Abnahme:** Demo-Overlay über Hearthstone unter Windows, KDE (Wayland + XWayland), GNOME (XWayland) und Sway. Klicks gehen ans Spiel durch, Widgets lassen sich ziehen.
+- **Abnahme:** Demo-Overlay über dem nativen Linux-Client sowie über Hearthstone unter Proton und unter Windows, auf KDE (Wayland + XWayland), GNOME (XWayland) und Sway. Klicks gehen ans Spiel durch, Widgets lassen sich ziehen.
 
 ### Phase 3: Mod-SDK & Laufzeit *(4–6 Wochen)*
 - [ ] **`overlay.json`-Manifest** (angelehnt an Overwolf, aber schlanker):
@@ -127,14 +127,19 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
 - **Abnahme:** Mod über den Index installieren, aktualisieren und zurückrollen. Ein manipuliertes Artefakt wird abgelehnt, ebenso ein Index mit falscher Signatur.
 
 ### Phase 5: Hearthstone Game Provider *(6–8 Wochen)*
-- [ ] **Installations- und Präfix-Finder**: Windows-Registry/Battle.net-Config. Unter Linux: Steam-`compatdata`, Lutris, Bottles, Heroic, Faugus und frei wählbarer Pfad
-- [ ] `log.config` automatisch anlegen bzw. ergänzen (Power, Zone, LoadingScreen, Arena, Decks, Achievements …)
+- [ ] **Installations-Finder**, in dieser Reihenfolge:
+  1. **nativer Linux-Client**: hearthstone-linux-gui (`game_dir` aus `$XDG_CONFIG_HOME/hearthstone-linux-gui/config.toml`, sonst `$XDG_DATA_HOME/hearthstone-linux-gui/game`), das ursprüngliche hearthstone-linux (frei gewählter Ordner) oder ein laufendes `Hearthstone.x86_64` (dessen Arbeitsverzeichnis)
+  2. Wine/Proton-Präfixe: Steam-`compatdata`, Lutris, Bottles, Heroic, Faugus
+  3. Windows: Registry/Battle.net-Config
+  4. frei wählbarer Pfad
+- [ ] `log.config` automatisch anlegen bzw. ergänzen (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Nativer Client: macOS-artiger Ort `~/Library/Preferences/Blizzard/Hearthstone/` (im Spike zu bestätigen); Wine: im Präfix
+- [ ] Größenbegrenzung der Hearthstone-Logs (sie werden bei etwa 10 MB abgeschnitten) und Log-Rotation abfangen, ohne den Spielzustand zu verlieren
 - [ ] **Power.log-Parser in Rust** (Referenz: python-hslog, HSTracker, beide MIT): Entities, Tags, Blocks, Zonenwechsel → Spielzustand und Events (`game-start`, `mulligan`, `card-drawn`, `card-played`, `turn-start`, `game-end` …)
 - [ ] Spielmodus-Erkennung (Ranked/Casual, Arena, BG, Brawl, Mercs, Solo)
 - [ ] Kartendatenbank: HearthstoneJSON herunterladen, Cache, Update bei neuem Patch. Kartenbilder werden **nur zur Laufzeit** geladen (Blizzard-IP).
-- [ ] *(optional, per Opt-in)* **Speicherleser** auf Basis der Ideen von UnitySpy (MIT, eigene Rust-Portierung mit Namensnennung): Sammlung, aktives Deck, Arena-Draft, BG-Lobby, Quests, Achievements. Funktioniert unter Linux über `/proc/<pid>/mem`.
+- [ ] *(optional, per Opt-in)* **Speicherleser** auf Basis der Ideen von UnitySpy (MIT, eigene Rust-Portierung mit Namensnennung): Sammlung, aktives Deck, Arena-Draft, BG-Lobby, Quests, Achievements. Zuerst für den nativen Client: ein normaler ELF-Prozess mit `libmonobdwgc-2.0.so`, also ohne Wine-Adressumrechnung. Wine/Proton über `/proc/<pid>/mem` als zweiter Schritt.
 - [ ] Event-Mitschnitte echter Partien als Testfixtures (Recorder aus Phase 3)
-- **Abnahme:** Der Provider liefert für 50 aufgezeichnete Partien (alle Modi) einen Spielzustand, der mit dem Endstand im Log übereinstimmt.
+- **Abnahme:** Der Provider liefert für 50 aufgezeichnete Partien (alle Modi, überwiegend auf dem nativen Linux-Client aufgezeichnet) einen Spielzustand, der mit dem Endstand im Log übereinstimmt.
 
 ### Phase 6: Flint MVP: Deck-Tracker *(6–8 Wochen)*
 Flint bekommt ein eigenes Repository und wird über den Index installiert. So durchläuft schon der erste Mod die komplette Pipeline. Aussehen orientiert an Firestone, mit eigenen Assets.
@@ -144,7 +149,7 @@ Flint bekommt ein eigenes Repository und wird über den Index installiert. So du
 - [ ] Hauptfenster (Firestone-artig): Navigation links, Bereich **Decks** (Deckcode-Import, lokale Stats pro Deck, Matchups), **Replays** (lokale Liste)
 - [ ] Einstellungen: Größe, Deckkraft, Position, welche Zonen sichtbar sind
 - [ ] Erstes öffentliches **Alpha-Release** von overLay plus Mod
-- **Abnahme:** Eine komplette Ranked-Partie unter Proton und unter Windows wird korrekt verfolgt, und das Ressourcenbudget wird eingehalten.
+- **Abnahme:** Eine komplette Ranked-Partie auf dem nativen Linux-Client (hearthstone-linux-gui), unter Proton und unter Windows wird korrekt verfolgt, und das Ressourcenbudget wird eingehalten.
 
 ### Phase 7: Firestone-Parität in Wellen *(fortlaufend)*
 Reihenfolge nach Nutzen und Aufwand:
@@ -178,6 +183,7 @@ Meta-Decks, globale Mulligan-Werte, BG-Hero-Tierlisten und Arena-Kartenwerte bra
 | Wayland erlaubt kein globales Positionieren | Overlay funktioniert nicht überall | XWayland als Standard, layer-shell wo verfügbar, gamescope-Backend |
 | Speicherlesen (ToS-Grauzone, ptrace-Rechte unter Linux) | Bann-Risiko (gering), Einrichtungsaufwand | nur Opt-in, nur lesend, nie schreiben oder injizieren; verständliche Anleitung zu `ptrace_scope` |
 | Hearthstone-Patches ändern das Logformat bzw. Speicherstrukturen | Tracker fällt aus | Recorder-Fixtures, schnelle Provider-Updates über die signierte Pipeline |
+| Der native Linux-Client ist inoffiziell (seine Autoren nennen ein Bann-Risiko, der Shop im Spiel ist geschlossen), und seine Pfade können sich ändern | Flints Hauptziel fällt aus oder Nutzer gehen ein Risiko ein | Flint liest nur und verändert den Client nie; `config.toml` des Launchers auslesen statt Pfade fest zu verdrahten; Releases verfolgen und mit den Maintainern eine stabile Schnittstelle abstimmen; Wine/Proton bleibt vollwertiger Ausweichweg |
 | WebKitGTK-Performance und -Transparenz je nach Distribution | ruckelndes Overlay | frühe Benchmarks in Phase 2, Fallback mit Compositing-Flags |
 | BG-Simulator-Aufwand (jede Karte) | Verzögerung | als eigenes Teilprojekt, auf Community-Beiträge ausgelegt |
 | Globale Stats ohne Telemetrie | Feature-Lücke gegenüber Firestone | Phase 8 (Opt-in, selbst hostbar) |
@@ -197,4 +203,4 @@ Noch offen:
 1. ~~Offene Entscheidungen 1–3 klären~~ ✓
 2. ~~Phase 0 umsetzen~~ ✓
 3. GitHub-Repository anlegen und den ersten CI-Lauf prüfen
-4. **Technischer Spike** (vor Phase 1, etwa 1 Woche): transparentes Click-through-Tauri-Fenster über Hearthstone unter Proton auf KDE und GNOME sowie unter Windows, mit RAM-Messung. Das ist die riskanteste Annahme des ganzen Projekts und sollte zuerst geprüft werden.
+4. **Technischer Spike** (vor Phase 1, etwa 1 Woche): transparentes Click-through-Tauri-Fenster über dem **nativen Linux-Client (hearthstone-linux-gui)** und über Hearthstone unter Proton, auf KDE und GNOME sowie unter Windows, mit RAM-Messung. Dazu die Orte von `log.config` und Logs beim nativen Client bestätigen. Das ist die riskanteste Annahme des ganzen Projekts und sollte zuerst geprüft werden.

@@ -1,0 +1,14 @@
+{
+  "tracker.title": "Deck",
+  "tracker.remaining": "{n} left",
+  "tracker.collapse": "Hide",
+  "tracker.expand": "Show",
+  "status.searching": "Waiting for Hearthstone…",
+  "status.demo": "Demo mode · {w}×{h}",
+  "status.tracking": "{flavor} · PID {pid} · {w}×{h} at {x},{y}",
+  "status.hidden": "Hearthstone minimised",
+  "status.stacking": "stacking: {mode}",
+  "status.fps-on": "FPS on",
+  "status.fps-off": "FPS off",
+  "status.fps": "{n} fps"
+}

@@ -1,0 +1,139 @@
+:root {
+  --surface: rgb(21 24 30 / 0.88);
+  --row: linear-gradient(90deg, rgb(40 46 58 / 0.95), rgb(28 32 40 / 0.95));
+  --text: #e8ebf0;
+  --muted: #8a93a3;
+  --accent: #2ed3b7;
+  --mana: #2f6fd6;
+  --legendary: #f2a33a;
+  --epic: #a35ee0;
+  --rare: #3f8cf0;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: transparent;
+  color: var(--text);
+  font:
+    13px/1.3 'Inter',
+    'Segoe UI',
+    'Noto Sans',
+    system-ui,
+    sans-serif;
+  user-select: none;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: rgb(255 255 255 / 0.08);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.status {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid rgb(46 211 183 / 0.4);
+  font-size: 12px;
+}
+
+.tracker {
+  position: absolute;
+  top: 12%;
+  right: 16px;
+  width: 230px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+}
+
+.tracker-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  cursor: grab;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  font-weight: 600;
+}
+
+.tracker-header .remaining {
+  margin-left: auto;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.tracker.collapsed .cards {
+  display: none;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  margin: 2px 0;
+  padding: 0 6px 0 2px;
+  border-radius: 4px;
+  background: var(--row);
+  border-left: 3px solid transparent;
+  transition: opacity 120ms ease;
+}
+
+.card.rare {
+  border-left-color: var(--rare);
+}
+.card.epic {
+  border-left-color: var(--epic);
+}
+.card.legendary {
+  border-left-color: var(--legendary);
+}
+
+.card.drawn {
+  opacity: 0.35;
+}
+
+.mana {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #6aa3ff, var(--mana));
+  font-weight: 700;
+  font-size: 12px;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.6);
+}
+
+.name {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.count {
+  color: var(--legendary);
+  font-weight: 700;
+}

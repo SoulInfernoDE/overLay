@@ -8,7 +8,8 @@ use std::collections::BTreeMap;
 use std::io::{self, BufRead, Write};
 
 use overlay_games::Flavor;
-use overlay_settings::{Position, Settings};
+use overlay_mods::{Manifest, ModSource, Permission};
+use overlay_settings::{Position, SettingValue, Settings};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
@@ -62,6 +63,52 @@ pub struct Snapshot {
     pub games: Vec<GameView>,
 }
 
+/// A mod as the UI processes see it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct ModView {
+    pub manifest: Manifest,
+    pub origin: ModSource,
+    pub enabled: bool,
+    /// Folder the mod is loaded from.
+    pub path: String,
+    /// The mod's description, localized from its own catalogs.
+    pub description: String,
+    /// Current values of the mod's settings, defaults filled in.
+    pub values: BTreeMap<String, SettingValue>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct ModList {
+    pub mods: Vec<ModView>,
+    /// Mods that could not be loaded, with the reason.
+    pub errors: Vec<String>,
+}
+
+/// A call a mod makes through the SDK. The UI process adds the mod id itself (it knows
+/// which frame sent the message); the core checks the mod's permissions.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "method", rename_all = "kebab-case")]
+pub enum ModCall {
+    StorageGet {
+        key: String,
+    },
+    StorageSet {
+        key: String,
+        value: serde_json::Value,
+    },
+    StorageRemove {
+        key: String,
+    },
+    StorageKeys,
+    Notify {
+        text: String,
+    },
+    /// Message to the mod's other windows (e.g. from its launcher page to its overlay).
+    BusPost {
+        message: serde_json::Value,
+    },
+}
+
 /// The game an overlay process draws over.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OverlayTarget {
@@ -90,6 +137,23 @@ pub enum CoreMessage {
     },
     /// Overlay only: the user pressed the overlay hotkey.
     ToggleOverlay,
+    /// The list of mods changed (loaded, switched on or off, settings changed).
+    ModsChanged {
+        list: ModList,
+    },
+    /// An event for mod frames: those of `mod_id`, or all mods when it is `None`. Frames
+    /// only get it if their mod holds `permission`.
+    ModEvent {
+        mod_id: Option<String>,
+        name: String,
+        data: serde_json::Value,
+        permission: Option<Permission>,
+    },
+    /// Overlay only: show a toast, optionally naming the mod that asked for it.
+    Toast {
+        text: String,
+        source: Option<String>,
+    },
     /// Bring the window to the front (e.g. the user started overLay a second time).
     Focus,
     /// Close the window and exit.
@@ -132,6 +196,37 @@ pub enum Request {
         resolution: String,
         widget: String,
         position: Position,
+    },
+    ListMods,
+    /// Reads the mod folders again (developer mode: after rebuilding a mod).
+    ReloadMods,
+    SetModEnabled {
+        mod_id: String,
+        enabled: bool,
+    },
+    SetModSetting {
+        mod_id: String,
+        setting: String,
+        value: SettingValue,
+    },
+    SetDeveloperMode {
+        enabled: bool,
+    },
+    AddDeveloperModPath {
+        path: String,
+    },
+    RemoveDeveloperModPath {
+        path: String,
+    },
+    ModCall {
+        mod_id: String,
+        call: ModCall,
+    },
+    /// The webview blocked a request of a mod (CSP report).
+    ReportBlocked {
+        mod_id: String,
+        blocked_uri: String,
+        directive: String,
     },
 }
 

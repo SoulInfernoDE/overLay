@@ -8,11 +8,13 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Geändert
 
+- Das Overlay bleibt sichtbar, solange das Spiel angezeigt wird und kein anderes aktives Fenster es überdeckt; Arbeiten auf einem anderen Monitor lässt es also stehen (vorher verschwand es, sobald das Spiel den Fokus verlor)
 - Fahrplan nach dem Overlay-Spike: eine gemeinsame Overlay-WebView für alle Mods, das Overlay nimmt nie den Fokus, klickbare Bereiche werden mit dem Device-Pixel-Ratio umgerechnet; Orte von `log.config` und Logs beim nativen Client bestätigt
 - Fahrplan und Recherche: Der native Linux-Client von Hearthstone (hearthstone-linux-gui, macOS-Spieldateien auf Unitys Linux-Player) ist jetzt Hauptziel von Flint, mit Details zu Prozess, Pfaden und Logs
 
 ### Hinzugefügt
 
+- Mod-SDK und Laufzeit (Phase 3): `overlay.json`-Manifeste mit strenger Prüfung (`overlay-mods`); Mods laufen als Sandbox-Frames, ausgeliefert über `mod://` mit einer CSP pro Mod, sodass die WebView nicht deklarierte Netzwerk-Hosts blockiert und dem Kern meldet; SDK `@overlay/sdk` mit Übersetzungen, Speicher, Hinweisen, Nachrichtenbus, Tastenkürzeln, Einstellungen, Spielzustand und verschiebbaren, teilweise durchklickbaren Overlay-Fenstern; Berechtigungsprüfung im Kern; Entwicklermodus für lokale Mod-Ordner; Mods in der Bibliothek des Launchers mit Mod-Seite (Berechtigungen, Netzwerk-Hosts, erzeugte Einstellungen, Desktop-Fenster); Beispiel-Mod `hello-overlay`; Anleitung für Mod-Autoren (`docs/mod-development.de.md`)
 - Overlay im Spiel (Phase 2): ein transparentes, durchklickbares Fenster pro laufendem Spiel, das dem Spielfenster über X11-Ereignisse folgt, nur bei aktivem Spiel sichtbar ist, nie den Fokus nimmt und sich mit `Strg+Umschalt+L` ein- und ausblenden lässt; Hinweis-Einblendungen; ein Demo-Widget, dessen Position pro Spiel und Auflösung gespeichert wird
 - Prozessmodell: Der Kern läuft ohne WebView, Launcher und Overlay sind Kindprozesse, die über stdin/stdout mit ihm sprechen (`overlay-ipc`); nach dem Schließen des Launchers braucht der Kern wieder 27 MB PSS
 - `OVERLAY_DEBUG=1` protokolliert jede Änderung des Spielfensters

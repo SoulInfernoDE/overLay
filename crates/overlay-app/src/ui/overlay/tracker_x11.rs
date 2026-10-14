@@ -65,7 +65,24 @@ fn track(pid: u32, on_change: &dyn Fn(Option<GameWindow>)) -> Result<()> {
 
     let mut window: Option<Window> = None;
     let mut last: Option<Option<GameWindow>> = None;
+    let mut watched_active: Option<Window> = None;
     loop {
+        // Moving the active window over or away from the game changes the overlay's
+        // visibility, so its moves are watched too.
+        let active = active_window(&conn, root, &atoms);
+        if active != watched_active {
+            if let Some(a) = active.filter(|a| Some(*a) != window && *a != root) {
+                let _ = top_level(&conn, root, a).and_then(|frame| {
+                    conn.change_window_attributes(
+                        frame,
+                        &ChangeWindowAttributesAux::new().event_mask(EventMask::STRUCTURE_NOTIFY),
+                    )?;
+                    conn.flush()?;
+                    Ok(())
+                });
+            }
+            watched_active = active;
+        }
         if window.is_none() {
             window = find_window(&conn, root, &atoms, pid)?;
             if let Some(w) = window {
@@ -189,14 +206,66 @@ fn read_state(
         a == window
             || matches!(window_pid(conn, atoms, a), Some(p) if p == pid || p == std::process::id())
     });
-    Ok(GameWindow {
+    let game = Area {
         x: origin.dst_x.into(),
         y: origin.dst_y.into(),
         width: geometry.width.into(),
         height: geometry.height.into(),
+    };
+    // With several monitors, another window can be active without hiding the game.
+    let covered = !active
+        && active_window
+            .filter(|a| *a != root && *a != x11rb::NONE)
+            .and_then(|a| area_of(conn, root, a).ok())
+            .is_some_and(|other| other.overlaps(&game));
+    Ok(GameWindow {
+        x: game.x,
+        y: game.y,
+        width: game.width,
+        height: game.height,
         hidden: !mapped || minimized,
         active,
+        covered,
     })
+}
+
+/// A rectangle in root (screen) coordinates.
+struct Area {
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+}
+
+impl Area {
+    fn overlaps(&self, other: &Area) -> bool {
+        let right = |a: &Area| a.x + a.width as i32;
+        let bottom = |a: &Area| a.y + a.height as i32;
+        self.x < right(other)
+            && other.x < right(self)
+            && self.y < bottom(other)
+            && other.y < bottom(self)
+    }
+}
+
+fn area_of(conn: &RustConnection, root: Window, window: Window) -> Result<Area> {
+    let geometry = conn.get_geometry(window)?.reply()?;
+    let origin = conn.translate_coordinates(window, root, 0, 0)?.reply()?;
+    Ok(Area {
+        x: origin.dst_x.into(),
+        y: origin.dst_y.into(),
+        width: geometry.width.into(),
+        height: geometry.height.into(),
+    })
+}
+
+fn active_window(conn: &RustConnection, root: Window, atoms: &Atoms) -> Option<Window> {
+    conn.get_property(false, root, atoms.active_window, AtomEnum::WINDOW, 0, 1)
+        .ok()?
+        .reply()
+        .ok()?
+        .value32()
+        .and_then(|mut v| v.next())
 }
 
 fn window_pid(conn: &RustConnection, atoms: &Atoms, window: Window) -> Option<u32> {

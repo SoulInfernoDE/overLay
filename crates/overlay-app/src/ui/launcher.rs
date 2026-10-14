@@ -5,15 +5,20 @@ use std::sync::Arc;
 use overlay_ipc::CoreMessage;
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 
+use super::mods::{self, ModMap};
 use super::{CoreClient, listen_to_core};
 
 const WINDOW: &str = "main";
 
 pub fn run() {
     let client = Arc::new(CoreClient::default());
-    tauri::Builder::default()
+    mods::register(tauri::Builder::default())
         .manage(Arc::clone(&client))
-        .invoke_handler(tauri::generate_handler![crate::ui::core_request])
+        .manage(ModMap::default())
+        .invoke_handler(tauri::generate_handler![
+            crate::ui::core_request,
+            crate::ui::mods::mod_base_url
+        ])
         .setup(move |app| {
             listen_to_core(app.handle().clone(), Arc::clone(&client), on_message);
             WebviewWindowBuilder::new(app, WINDOW, WebviewUrl::App("index.html".into()))
@@ -31,7 +36,7 @@ pub fn run() {
 }
 
 fn on_message(app: &AppHandle, message: CoreMessage) {
-    match message {
+    match message.clone() {
         CoreMessage::GamesChanged { games } => {
             let _ = app.emit("games-changed", games);
         }
@@ -45,6 +50,16 @@ fn on_message(app: &AppHandle, message: CoreMessage) {
             }
         }
         CoreMessage::Close => app.exit(0),
-        CoreMessage::Response { .. } | CoreMessage::Target { .. } | CoreMessage::ToggleOverlay => {}
+        CoreMessage::ModsChanged { list } => {
+            app.state::<ModMap>().update(&list);
+            let _ = app.emit("mods-changed", list);
+        }
+        CoreMessage::ModEvent { .. } => {
+            let _ = app.emit("mod-event", message);
+        }
+        CoreMessage::Response { .. }
+        | CoreMessage::Target { .. }
+        | CoreMessage::ToggleOverlay
+        | CoreMessage::Toast { .. } => {}
     }
 }

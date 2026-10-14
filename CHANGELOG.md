@@ -8,11 +8,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The overlay stays visible while the game is shown and no other active window covers it, so working on another monitor keeps it (it used to hide whenever the game lost focus)
 - Roadmap after the overlay spike: one shared overlay webview for all mods, the overlay never takes focus, clickable regions are converted by the device pixel ratio; the native client's `log.config` and log locations are confirmed
 - Roadmap and research: the native Linux Hearthstone client (hearthstone-linux-gui, macOS game files on Unity's Linux player) is now Flint's primary target, with its process, path and log details
 
 ### Added
 
+- Mod SDK and runtime (phase 3): `overlay.json` manifests with strict validation (`overlay-mods`); mods run as sandboxed frames served over `mod://` with a per-mod CSP, so undeclared network hosts are blocked by the webview and reported to the core; SDK `@overlay/sdk` with translations, storage, notifications, message bus, hotkeys, settings, game state and draggable, partly click-through overlay windows; permission checks in the core; developer mode for local mod folders; mods in the launcher library with a mod page (permissions, network hosts, generated settings, desktop window); example mod `hello-overlay`; guide for mod authors (`docs/mod-development.md`)
 - In-game overlay (phase 2): one transparent, click-through window per running game that follows the game window through X11 events, shows only while the game is active, never takes focus and can be toggled with `Ctrl+Shift+L`; toast notifications; a demo widget whose position is saved per game and resolution
 - Process model: the core runs without a webview, the launcher and the overlay are child processes that talk to it over stdin/stdout (`overlay-ipc`); closing the launcher brings the core back to 27 MB PSS
 - `OVERLAY_DEBUG=1` logs every change of the game window

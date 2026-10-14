@@ -85,7 +85,7 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
 ### Phase 2: Overlay-Engine *(4–6 Wochen)*
 - [x] **Prozessmodell:** Der Kern (Tray, Erkennung, Einstellungen, Tastenkürzel) lädt keine WebView; Launcher und Overlay sind Kindprozesse desselben Programms (`--ui launcher`, `--ui overlay`), die über stdin/stdout mit dem Kern sprechen (`crates/overlay-ipc`, JSON-Zeilen) und enden, sobald sie nicht mehr gebraucht werden. Nach dem Schließen des Launchers ist der Kern wieder bei 27 MB PSS (vorher 81 MB)
 - [x] **Ein Overlay-Fenster** pro laufendem Spiel für alle Widgets: transparent, randlos, oben, nimmt nie den Fokus, **Click-through pro Region** (Widgets nehmen Eingaben an, alles andere geht ans Spiel; Bereiche mit dem Device-Pixel-Ratio umgerechnet)
-- [x] Folgt dem Spielfenster: unter X11 über Ereignisse (`ConfigureNotify`, Eigenschaftsänderungen, keine Abfrage im Takt), unter Windows per Abfrage alle 50 ms; sichtbar nur, solange das Spiel angezeigt wird und aktiv ist
+- [x] Folgt dem Spielfenster: unter X11 über Ereignisse (`ConfigureNotify`, Eigenschaftsänderungen, keine Abfrage im Takt), unter Windows per Abfrage alle 50 ms; sichtbar, solange das Spiel angezeigt wird und kein anderes aktives Fenster es überdeckt (Arbeiten auf einem anderen Monitor lässt das Overlay also stehen)
 - [ ] Backends:
   - [x] **X11/XWayland** (GTK-Input-Shape, Stapelung `above` oder Override-Redirect). Standard unter Proton und für den nativen Hearthstone-Client, die beide über X11/XWayland laufen; getestet unter Cinnamon
   - [ ] Windows (immer oben, Click-through über die Mausposition): umgesetzt und in der CI kompiliert, **unter Windows noch nicht getestet**
@@ -98,27 +98,18 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
 - Bekanntes Verhalten von Hearthstone, nicht durch overLay verursacht: Wird das Spielfenster im Fenstermodus in der Größe verändert, zoomt Hearthstone seine Ansicht (genauso bei abgeschaltetem Overlay).
 
 ### Phase 3: Mod-SDK & Laufzeit *(4–6 Wochen)*
-- [ ] **`overlay.json`-Manifest** (angelehnt an Overwolf, aber schlanker):
-  ```jsonc
-  {
-    "id": "io.github.<author>.<mod>", "version": "1.2.0",
-    "name": "@i18n:name", "license": "GPL-3.0-or-later",
-    "source": "https://github.com/<author>/<mod>",
-    "games": [{ "id": "hearthstone", "providers": ["hearthstone@^1"] }],
-    "permissions": ["game.events", "game.state", "storage.local", "hotkeys", "notifications"],
-    "network": ["api.hearthstonejson.com", "art.hearthstonejson.com"],
-    "windows": { "main": { "kind": "desktop" }, "tracker": { "kind": "overlay", "clickthrough": "auto" } },
-    "hotkeys": { "toggle-tracker": { "default": "Ctrl+Shift+D" } },
-    "locales": "locales/"
-  }
-  ```
-- [ ] JS-API `overlay.*`: `games` (Start/Ende), `events` (`onEvent`, `onInfo`, `getInfo`, `requireFeatures`), `windows` (öffnen, verschieben, Click-through, Deckkraft), `storage` (Key-Value + SQLite pro Mod), `hotkeys`, `notifications`, `i18n`, `settings` (Schema → automatisch erzeugte Einstellungsseite)
-- [ ] **Sandbox**: eigene WebView pro Mod-Fenster, strikte CSP, **Netz-Allowlist erzwungen im Host** (Requests an nicht deklarierte Domains werden blockiert und geloggt), kein Node, kein Dateisystemzugriff
-- [ ] Nachrichtenbus zwischen den Fenstern eines Mods (Ersatz für Overwolfs Background Controller)
-- [ ] **Developer-Modus**: Mod aus lokalem Ordner laden, Hot-Reload, DevTools, **Event-Recorder/-Player** (Spielsitzungen aufzeichnen und abspielen, wichtig für Tests ohne laufendes Spiel)
-- [ ] SDK-Paket (`@overlay/sdk`) mit TypeScript-Typen, Vorlage `create-overlay-mod`
+- [x] **`overlay.json`-Manifest** (`crates/overlay-mods`), streng geprüft: Reverse-DNS-ID, Semver, SPDX-Lizenz, https-Quelle, `games`, `permissions` (`game.state`, `game.events`, `storage`, `notifications`, `hotkeys`), `network` (einfache Host-Namen), Overlay- und Desktop-`windows`, `hotkeys`, `settings`-Schema. Referenz: [docs/mod-development.de.md](docs/mod-development.de.md)
+- [x] **Sandbox** (geprüft im [Spike mod-sandbox](spikes/mod-sandbox/RESULTS.de.md)): Mod-Fenster sind Sandbox-Frames in der einen Overlay-WebView (und im Launcher), ausgeliefert vom Host über `mod://`; CSP pro Mod aus dem Manifest, sodass **die WebView die Netzwerk-Allowlist durchsetzt** und blockierte Anfragen an den Host meldet, der sie protokolliert; kein `eval`, kein Zugriff auf die Seiten von overLay, Dateien nur aus dem eigenen Mod-Ordner (auch nicht über symbolische Links)
+- [x] SDK-Paket `@overlay/sdk` (`sdk/`, TypeScript): `ready`, `i18n` (eigene Fluent-Kataloge des Mods), `storage` (JSON-Schlüssel-Wert, 1 MB), `notifications`, `bus` (zwischen den Fenstern eines Mods, prozessübergreifend), `hotkeys` (im Manifest deklariert, vom Kern registriert), `settings` (erzeugte Einstellungsseite im Launcher), `game` (Zustand und Fenstergröße), `events` (vorbereitet für Phase 5), `windows` (Ziehen, Klickbereiche, Click-through). Jeder Aufruf wird im Kern auf Berechtigungen geprüft
+- [x] **Entwicklermodus**: Mods aus lokalen Ordnern laden, neu laden, Ladefehler in den Einstellungen, `OVERLAY_DEBUG=1` protokolliert Mod-Anfragen und Änderungen des Spielfensters
+- [x] Beispiel-Mod [`mods/hello-overlay`](mods/hello-overlay) (EN/DE)
+- [x] Launcher: Mods in der Bibliothek (an/aus), Mod-Seite mit Beschreibung, Berechtigungen, Netzwerk-Hosts, erzeugten Einstellungen und dem Desktop-Fenster des Mods
+- [ ] Event-Recorder/-Player (Spielsitzungen aufzeichnen und abspielen) – braucht Spielereignisse, wandert in Phase 5
+- [ ] Vorlage `create-overlay-mod`
+- [ ] SQLite-Speicher pro Mod (der Schlüssel-Wert-Speicher reicht vorerst)
+- [ ] Automatisches Neuladen, wenn sich ein Entwickler-Ordner ändert (jetzt: Knopf *Mods neu laden*)
 - [ ] *(optional)* Kompatibilitätsschicht für Teile der Overwolf-API, damit sich offene Overwolf-Apps leichter portieren lassen
-- **Abnahme:** Beispiel-Mod „Hello Overlay“ mit Locale-Katalog läuft. Ein Request an eine nicht deklarierte Domain wird nachweislich blockiert.
+- **Abnahme:** Beispiel-Mod „Hello Overlay“ mit Locale-Katalog läuft. Ein Request an eine nicht deklarierte Domain wird nachweislich blockiert. *Stand 2026-10-15: erfüllt unter Linux (X11) über dem nativen Hearthstone-Client; die blockierte Anfrage an example.com wurde gemeldet und protokolliert.*
 
 ### Phase 4: Mod-Repository & sichere Updates *(3–4 Wochen)*
 - [ ] Separates Repo **`overlay-mods-index`**: eine Datei pro Mod (`mods/<id>.toml`) mit Quell-Repo, Releases (Git-Tag + Commit-Hash), Artefakt-URL, **SHA-256**, Berechtigungen, Domains, Lizenz

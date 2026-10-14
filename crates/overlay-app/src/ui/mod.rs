@@ -3,6 +3,7 @@
 //! Nothing in a UI process may print to stdout; logs go to stderr.
 
 mod launcher;
+mod mods;
 mod overlay;
 
 use std::collections::HashMap;

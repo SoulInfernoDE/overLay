@@ -2522,10 +2522,12 @@ dependencies = [
 name = "overlay-app"
 version = "0.0.0"
 dependencies = [
+ "directories",
  "gtk",
  "overlay-games",
  "overlay-i18n",
  "overlay-ipc",
+ "overlay-mods",
  "overlay-settings",
  "serde",
  "serde_json",
@@ -2567,6 +2569,7 @@ name = "overlay-ipc"
 version = "0.0.0"
 dependencies = [
  "overlay-games",
+ "overlay-mods",
  "overlay-settings",
  "serde",
  "serde_json",

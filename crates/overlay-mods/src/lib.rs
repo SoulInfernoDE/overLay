@@ -9,7 +9,7 @@ mod manifest;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub use manifest::{
     DefaultPosition, HotkeySpec, Manifest, ManifestError, Permission, SettingKind, SettingSpec,
@@ -18,7 +18,7 @@ pub use manifest::{
 
 pub const MANIFEST_FILE: &str = "overlay.json";
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ModSource {
     /// Installed through a mod repository (phase 4).

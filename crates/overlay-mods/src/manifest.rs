@@ -335,6 +335,13 @@ mod tests {
     }
 
     #[test]
+    fn example_mod_manifest_is_valid() {
+        let json = include_str!("../../../mods/hello-overlay/public/overlay.json");
+        let manifest = Manifest::parse(json).unwrap();
+        assert_eq!(manifest.id, "io.github.soulinfernode.hello-overlay");
+    }
+
+    #[test]
     fn valid_manifest_parses() {
         let manifest = Manifest::parse(VALID).unwrap();
         assert_eq!(manifest.version, semver::Version::new(0, 1, 0));

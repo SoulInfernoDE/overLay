@@ -17,4 +17,5 @@ Thumbs.db
 .env
 .env.*
 
-# Local assistant tooling
+# Built mods
+mods/*/dist/

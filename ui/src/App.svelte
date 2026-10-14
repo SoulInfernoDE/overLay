@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Dock from './components/Dock.svelte';
   import LibraryView from './components/LibraryView.svelte';
+  import ModPage from './components/ModPage.svelte';
   import SettingsView from './components/SettingsView.svelte';
   import StoreView from './components/StoreView.svelte';
   import TitleBar from './components/TitleBar.svelte';
@@ -10,6 +11,13 @@
   import type { SectionId } from './lib/sections';
 
   let active: SectionId = $state('library');
+  let openModId: string | null = $state(null);
+  const openMod = $derived(app.mods.mods.find((m) => m.manifest.id === openModId) ?? null);
+
+  // Leaving the library through the dock closes an open mod page.
+  $effect(() => {
+    if (active !== 'library') openModId = null;
+  });
 
   onMount(() => {
     void initApp();
@@ -21,8 +29,10 @@
   <div class="main">
     <TitleBar />
     <main class="content">
-      {#if active === 'library'}
-        <LibraryView navigate={(id) => (active = id)} />
+      {#if active === 'library' && openMod}
+        <ModPage mod={openMod} onback={() => (openModId = null)} />
+      {:else if active === 'library'}
+        <LibraryView navigate={(id) => (active = id)} openMod={(id) => (openModId = id)} />
       {:else if active === 'store'}
         <StoreView />
       {:else}

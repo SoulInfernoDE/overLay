@@ -25,9 +25,11 @@ tauri-build = { version = "2", features = [] }
 overlay-games = { path = "../overlay-games" }
 overlay-i18n = { path = "../overlay-i18n" }
 overlay-ipc = { path = "../overlay-ipc" }
+overlay-mods = { path = "../overlay-mods" }
 overlay-settings = { path = "../overlay-settings" }
 serde.workspace = true
 serde_json.workspace = true
+directories.workspace = true
 sys-locale = "0.3"
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-autostart = "2"

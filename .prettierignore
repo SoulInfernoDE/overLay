@@ -6,3 +6,4 @@ package-lock.json
 spikes/*/gen/
 crates/*/gen/
 spikes/*/target/
+mods/*/dist/

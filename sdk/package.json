@@ -1,0 +1,14 @@
+{
+  "name": "@overlay/sdk",
+  "version": "0.1.0",
+  "description": "SDK for overLay mods: localization, storage, notifications, game state and overlay windows",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./protocol": "./src/protocol.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit -p ."
+  }
+}

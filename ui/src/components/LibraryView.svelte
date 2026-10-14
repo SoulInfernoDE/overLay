@@ -1,10 +1,12 @@
 <script lang="ts">
   import Gamepad from '@lucide/svelte/icons/gamepad-2';
   import { app } from '../lib/app-state.svelte';
+  import ModCard from './ModCard.svelte';
   import { t } from '../lib/i18n.svelte';
   import type { SectionId } from '../lib/sections';
 
-  let { navigate }: { navigate: (id: SectionId) => void } = $props();
+  let { navigate, openMod }: { navigate: (id: SectionId) => void; openMod: (id: string) => void } =
+    $props();
 </script>
 
 <h1>{t('library-title')}</h1>
@@ -23,10 +25,18 @@
 </ul>
 
 <h2>{t('library-mods-title')}</h2>
-<div class="empty">
-  <p>{t('library-empty')}</p>
-  <button class="primary" onclick={() => navigate('store')}>{t('library-empty-action')}</button>
-</div>
+{#if app.mods.mods.length > 0}
+  <ul class="mods">
+    {#each app.mods.mods as mod (mod.manifest.id)}
+      <ModCard {mod} onopen={() => openMod(mod.manifest.id)} />
+    {/each}
+  </ul>
+{:else}
+  <div class="empty">
+    <p>{t('library-empty')}</p>
+    <button class="primary" onclick={() => navigate('store')}>{t('library-empty-action')}</button>
+  </div>
+{/if}
 
 <style>
   h2 {
@@ -41,6 +51,14 @@
   .games {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--ol-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mods {
+    display: grid;
     gap: var(--ol-space-3);
     margin: 0;
     padding: 0;

@@ -168,11 +168,35 @@ Gekürzt nach dem Wiki „Firestone features“ und „Premium features“:
 
 ## 5. Technische Fakten zu Hearthstone unter Linux/Proton
 
-- Hearthstone ist ein **Unity-Mono**-Spiel ohne Linux-Build und läuft über Battle.net in Wine/Proton (Lutris, Steam-Proton als Nicht-Steam-Spiel, Bottles, Heroic, Faugus).
+- Hearthstone ist ein **Unity-Mono**-Spiel ohne offiziellen Linux-Build. Es läuft entweder **nativ** über den Community-Launcher hearthstone-linux-gui (siehe 5.1) oder über Battle.net in Wine/Proton (Lutris, Steam-Proton als Nicht-Steam-Spiel, Bottles, Heroic, Faugus).
 - **Logs:** `log.config` unter `<prefix>/drive_c/users/<user>/AppData/Local/Blizzard/Hearthstone/log.config`. Logs liegen unter `<Installationsordner>/Logs/Hearthstone_<Datum>/Power.log` usw. overLay muss **Wine-Präfixe automatisch finden** und die `log.config` anlegen bzw. ergänzen.
 - **Speicher:** UnitySpy kann einen Wine-Prozess vom Linux-Host aus über `/proc/<pid>/mem` bzw. ptrace lesen. Nötig ist derselbe Benutzer, und je nach `ptrace_scope` braucht es `CAP_SYS_PTRACE`.
 - **Overlay ohne Injektion:** Der Deck-Tracker HDT läuft unter Windows als transparentes Topmost-Fenster über Hearthstone. Das geht, weil HS randlos im Vollbild läuft. Unter Linux funktioniert dasselbe Prinzip unter X11 und XWayland. Unter nativem Wayland braucht man `wlr-layer-shell` (KDE, wlroots, Hyprland; **nicht GNOME**). Unter **gamescope** (Steam Deck) braucht man das External-Overlay-Atom (`GAMESCOPE_EXTERNAL_OVERLAY`, wie bei MangoHud/mangoapp).
 - **Blizzard-ToS:** Deck-Tracker, die nur Logs auswerten und Informationen zeigen, die der Spieler ohnehin selbst sehen könnte, werden seit Jahren geduldet. Speicherlesen ist eine Grauzone (HDT und Firestone tun es). **Code-Injektion in den Client** (BepInEx) ist riskanter und wird in overLay **nicht** standardmäßig angeboten.
+
+### 5.1 Nativer Linux-Client (hearthstone-linux, hearthstone-linux-gui)
+
+**Hauptziel von Flint.** Hearthstone ist ein Unity-Spiel, und Unitys Plattformdateien sind weitgehend generisch. Das Community-Projekt [`0xf4b1/hearthstone-linux`](https://github.com/0xf4b1/hearthstone-linux) (MIT) startet die **offiziellen macOS-Spieldateien mit Unitys Linux-Player** (Renderer OpenGLCore), ohne Wine und ohne Battle.net-App. Es verteilt selbst keine proprietären Dateien; die Spieldateien kommen vom CDN von Blizzard. Bekannte Grenzen: Der Shop im Spiel ist geschlossen, und die Autoren weisen darauf hin, dass diese inoffizielle Methode ein Bann-Risiko haben kann.
+
+[`DawnMagnet/hearthstone-linux-gui`](https://github.com/DawnMagnet/hearthstone-linux-gui) (MIT, Rust, GTK4/libadwaita, aktiv gepflegt) macht daraus einen fertigen Launcher: nativer NGDP-Downloader mit Cache und Prüfung, Login, Update und Start aus einem Fenster, optional `gamemoderun` und MangoHud, Editor für Spieleinstellungen, Oberfläche auf Englisch, Deutsch und Chinesisch, Pakete als AppImage, DEB, RPM, Flatpak und Nix.
+
+Fakten, die für Flint wichtig sind (aus dem Quellcode des Launchers, Stand 2026-10-14):
+
+| Thema | Wert |
+|---|---|
+| Prozess | `<game_dir>/Bin/Hearthstone.x86_64`, ein nativer ELF-Prozess mit `game_dir` als Arbeitsverzeichnis |
+| Standard-`game_dir` | `$XDG_DATA_HOME/hearthstone-linux-gui/game` (meist `~/.local/share/hearthstone-linux-gui/game`) |
+| Launcher-Konfiguration | `$XDG_CONFIG_HOME/hearthstone-linux-gui/config.toml`, optionaler Schlüssel `game_dir`, außerdem `installed_version`, `locale`, `region`, `use_mangohud` … |
+| Mono-Laufzeit | `Bin/Hearthstone_Data/MonoBleedingEdge/x86_64/libmonobdwgc-2.0.so`, ein Speicherleser arbeitet also mit einem normalen Linux-Prozess, ohne Wine-Adressumrechnung |
+| Spieleinstellungen | Der Linux-Unity-Player nutzt den **macOS-Ort**: `~/Library/Preferences/Blizzard/Hearthstone/options.txt`. `log.config` wird daher im selben Ordner erwartet (**im Spike zu bestätigen**) |
+| Spiel-Logs | `Logs/` unterhalb des Spielordners (das ursprüngliche Projekt verweist zur Fehlersuche auf `Bin/Logs/`; **zu bestätigen**). Der Launcher leitet Unitys stdout/stderr (`Player.log`) in seinen eigenen Log-Ordner um |
+| Fenster | Unity-Linux-Player, normalerweise X11/XWayland, also dasselbe Overlay-Backend wie bei Proton |
+
+**Weitere Linux-Tracker (als Referenz):**
+
+- [`Ratpido-dev/cairn`](https://github.com/Ratpido-dev/cairn) (MIT, Python): nativer Linux-Tracker, der nur Logs liest, ohne Injektion, ohne Speicherlesen und ohne Telemetrie. Nützliche Erkenntnis daraus: Hearthstone begrenzt seine Logs auf etwa 10 MB und schneidet sie dann ab („Truncating log“); unter Wine kann das scheitern, und das Tracking wird blind. Cairn unterstützt den nativen Client nur über einen manuell gesetzten Log-Pfad und kann dessen `log.config` nicht schreiben. Flint sollte beides können.
+- [`borisbabic/hearthstone_hdt_linux`](https://github.com/borisbabic/hearthstone_hdt_linux) (Apache-2.0): Anleitung für HDT unter Wine.
+- [`yusufipk/deste-hearthstone-linux-tracker`](https://github.com/yusufipk/deste-hearthstone-linux-tracker) (keine Lizenz): nur als Verhaltensreferenz.
 
 ---
 

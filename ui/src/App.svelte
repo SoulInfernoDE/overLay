@@ -5,6 +5,7 @@
   import StoreView from './components/StoreView.svelte';
   import { t } from './lib/i18n.svelte';
   import type { SectionId } from './lib/sections';
+  import appIcon from '../../assets/branding/overlay/icon.svg';
 
   let active: SectionId = $state('library');
 </script>
@@ -13,6 +14,7 @@
   <Dock bind:active />
   <div class="main">
     <header class="titlebar">
+      <img class="brand-icon" src={appIcon} alt="" width="20" height="20" />
       <span class="brand">overLay</span>
     </header>
     <main class="content">
@@ -48,6 +50,10 @@
     padding: 0 var(--ol-space-4);
     background: var(--ol-surface-dock);
     border-bottom: 1px solid var(--ol-border);
+  }
+
+  .brand-icon {
+    margin-right: var(--ol-space-2);
   }
 
   .brand {

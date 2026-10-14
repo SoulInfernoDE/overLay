@@ -1,0 +1,24 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/SoulInfernoDE/overLay"
+authors = ["overLay contributors"]
+
+[workspace.dependencies]
+fluent-bundle = "0.16"
+fluent-langneg = "0.13"  # must match the version fluent-bundle uses (unic-langid based)
+fluent-syntax = "0.12"
+thiserror = "2"
+unic-langid = "0.9"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }

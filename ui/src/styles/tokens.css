@@ -1,0 +1,60 @@
+/*
+ * overLay design tokens. Dark-first, dock-based launcher look.
+ * Mods receive these as CSS custom properties, so keep names stable.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces, darkest to lightest */
+  --ol-surface-dock: #0e1014;
+  --ol-surface-base: #15181e;
+  --ol-surface-raised: #1c2028;
+  --ol-surface-overlay: rgb(21 24 30 / 0.92);
+  --ol-surface-hover: #252a34;
+
+  /* Text */
+  --ol-text-primary: #e8ebf0;
+  --ol-text-secondary: #9aa3b2;
+  --ol-text-muted: #6b7383;
+
+  /* Brand and states */
+  --ol-accent: #2ed3b7;
+  --ol-accent-strong: #5ee6cf;
+  --ol-accent-contrast: #062520;
+  --ol-danger: #f05d5e;
+  --ol-warning: #f2b84b;
+  --ol-success: #5fd068;
+
+  --ol-border: #2a303b;
+  --ol-focus-ring: 0 0 0 2px var(--ol-accent);
+
+  /* Layout */
+  --ol-dock-width: 64px;
+  --ol-titlebar-height: 36px;
+  --ol-radius-sm: 4px;
+  --ol-radius-md: 8px;
+  --ol-radius-lg: 12px;
+  --ol-space-1: 4px;
+  --ol-space-2: 8px;
+  --ol-space-3: 12px;
+  --ol-space-4: 16px;
+  --ol-space-6: 24px;
+  --ol-space-8: 32px;
+
+  /* Type */
+  --ol-font-sans: 'Inter', 'Segoe UI', 'Noto Sans', system-ui, sans-serif;
+  --ol-font-size-sm: 12px;
+  --ol-font-size-md: 14px;
+  --ol-font-size-lg: 18px;
+  --ol-font-size-xl: 24px;
+
+  /* Motion */
+  --ol-duration-fast: 120ms;
+  --ol-easing: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ol-duration-fast: 0ms;
+  }
+}

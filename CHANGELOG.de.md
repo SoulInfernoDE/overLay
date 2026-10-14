@@ -1,0 +1,15 @@
+# Änderungsprotokoll
+
+> Deutsche Fassung. Englisches Original: [CHANGELOG.md](CHANGELOG.md)
+
+Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen folgen [Semantic Versioning](https://semver.org/lang/de/).
+
+## [Unveröffentlicht]
+
+### Hinzugefügt
+
+- Fundament aus Phase 0: Lizenz GPL-3.0-or-later, Fahrplan, Recherche, Mod-Richtlinie, Leitfaden zum Mitwirken, Verhaltenskodex (Contributor Covenant 3.0) und Sicherheitsrichtlinie, jeweils auf Englisch und Deutsch
+- Cargo-Workspace (Rust 1.99, Edition 2024) mit `overlay-i18n`: Fluent-Kataloge mit englischer Fallback-Kette und Vollständigkeitsprüfung über alle Sprachen
+- Grundgerüst der Launcher-Oberfläche (Svelte 5, Vite 8, TypeScript 6): Dock, Bereiche Bibliothek, Store und Einstellungen, Design-Tokens, Sprachumschaltung
+- Gemeinsame Fluent-Kataloge in `locales/` (Englisch, Deutsch)
+- CI für Linux und Windows: Formatierung, Lints, Tests, Typprüfung, Build, Lizenz- und Advisory-Prüfung; Dependabot für Cargo, npm und GitHub Actions

@@ -1,0 +1,21 @@
+# Rust
+/target/
+
+# Node
+node_modules/
+/ui/dist/
+
+# Editors / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local environment
+.env
+.env.*
+
+# Local assistant tooling
+.claude/

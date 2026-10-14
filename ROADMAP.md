@@ -205,4 +205,4 @@ Still open:
 1. ~~Settle open decisions 1–3~~ ✓
 2. ~~Do phase 0~~ ✓
 3. ~~Create the GitHub repository and check the first CI run~~ ✓
-4. **Technical spike** (largely done: native client on X11 works, see [results](spikes/overlay-window/RESULTS.md); still open: fullscreen mode, Proton, Wayland/KDE/GNOME, Windows): a transparent click-through Tauri window over the **native Linux client (hearthstone-linux-gui)** and over Hearthstone under Proton, on KDE and GNOME, and on Windows, with RAM measurements. Also confirm the native client's `log.config` and log locations. This is the riskiest assumption in the whole project and should be tested first.
+4. **Technical spike** (largely done: native client on X11 works, see [results](spikes/overlay-window/RESULTS.md); still open: Proton, Wayland/KDE/GNOME, Windows): a transparent click-through Tauri window over the **native Linux client (hearthstone-linux-gui)** and over Hearthstone under Proton, on KDE and GNOME, and on Windows, with RAM measurements. Also confirm the native client's `log.config` and log locations. This is the riskiest assumption in the whole project and should be tested first.

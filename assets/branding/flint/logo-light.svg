@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 655 256" width="655" height="256" role="img" aria-label="Flint">
+<title>Flint</title>
+<defs>
+  <linearGradient id="fl-tile" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#2a2320"/><stop offset="1" stop-color="#131011"/>
+  </linearGradient>
+  <radialGradient id="fl-glow">
+    <stop offset="0" stop-color="#ffb347" stop-opacity="0.55"/><stop offset="1" stop-color="#ff6a2b" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="fl-spark">
+    <stop offset="0" stop-color="#fff6d6"/><stop offset="0.45" stop-color="#ffc35a"/><stop offset="1" stop-color="#ff6a2b"/>
+  </radialGradient>
+</defs>
+<rect width="256" height="256" rx="56" fill="url(#fl-tile)"/>
+<rect x="1" y="1" width="254" height="254" rx="55" fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="2"/>
+<polygon points="184,46 212,96 150,112" fill="#8b95a7" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="212,96 192,160 150,112" fill="#647084" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="150,112 192,160 140,208 116,162" fill="#4c5567" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="116,162 140,208 86,216" fill="#3a4251" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="86,216 50,188 116,162" fill="#525b6c" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="50,188 58,132 116,162" fill="#687284" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="58,132 102,82 150,112 116,162" fill="#7a8497" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="102,82 184,46 150,112" fill="#9ba4b5" stroke="#1a1d24" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="184,46 212,96 192,160 140,208 86,216 50,188 58,132 102,82" fill="none" stroke="#1a1d24" stroke-width="6" stroke-linejoin="round"/>
+<circle cx="84" cy="70" r="58" fill="url(#fl-glow)"/>
+<path d="M84.0,30.0 Q84.0,70.0 124.0,70.0 Q84.0,70.0 84.0,110.0 Q84.0,70.0 44.0,70.0 Q84.0,70.0 84.0,30.0Z" fill="url(#fl-spark)"/>
+<path d="M48.0,99.0 Q48.0,112.0 61.0,112.0 Q48.0,112.0 48.0,125.0 Q48.0,112.0 35.0,112.0 Q48.0,112.0 48.0,99.0Z" fill="#ffb347"/>
+<path d="M132.0,20.0 Q132.0,30.0 142.0,30.0 Q132.0,30.0 132.0,40.0 Q132.0,30.0 122.0,30.0 Q132.0,30.0 132.0,20.0Z" fill="#ffc35a"/>
+<path d="M309.0625 186.203125V69.796875H388.203125V92.296875H336.640625V121.828125H383.125V143.859375H336.640625V186.203125Z M429.921875 69.796875V186.203125H402.65625V69.796875Z M447.96875 186.203125V98.859375H475.234375V186.203125Z M520.546875 136.359375V186.203125H493.28125V98.859375H518.90625L519.375 117.6875Q522.8125 108.625 529.453125 103.1953125Q536.09375 97.765625 546.71875 97.765625Q560.390625 97.765625 568.671875 106.75Q576.953125 115.734375 576.953125 130.578125V186.203125H549.6875V135.890625Q549.6875 128.546875 545.9375 124.3671875Q542.1875 120.1875 535.46875 120.1875Q528.828125 120.1875 524.6875 124.4453125Q520.546875 128.703125 520.546875 136.359375Z M642.03125 98.859375V119.09375H626.328125V159.484375Q626.328125 166.28125 633.28125 166.28125Q634.6875 166.28125 637.2265625 165.9296875Q639.765625 165.578125 640.859375 165.34375L644.375 185.1875Q639.765625 186.515625 635.46875 186.984375Q631.171875 187.453125 627.34375 187.453125Q613.4375 187.453125 606.25 180.9296875Q599.0625 174.40625 599.0625 161.90625V119.09375H587.5V98.859375H599.0625V78.078125H626.328125V98.859375Z" fill="#15181e"/>
+<path d="M461.6,53.9 Q461.6,77.9 485.6,77.9 Q461.6,77.9 461.6,101.9 Q461.6,77.9 437.6,77.9 Q461.6,77.9 461.6,53.9Z" fill="#e8701f"/>
+</svg>

@@ -1,5 +1,12 @@
 # overLay
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/branding/overlay/logo-dark.svg">
+    <img src="assets/branding/overlay/logo-light.svg" alt="overLay" width="360">
+  </picture>
+</p>
+
 > Deutsche Fassung. Englisches Original: [README.md](README.md)
 
 **overLay** ist ein schlanker, quelloffener Overlay-Manager für Spiele unter **Linux (nativ, Wine, Proton)** und **Windows**. Er installiert und startet **Overlay-Mods**: kleine Web-Apps, die Live-Informationen über dem Spiel anzeigen, zum Beispiel einen Deck-Tracker für Hearthstone.
@@ -16,6 +23,8 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 ## Erster Mod: Flint
 
+<img src="assets/branding/flint/icon.svg" width="64" align="right" alt="">
+
 **Flint** ist ein Hearthstone-Companion mit Deck-Tracker, Gegner-Tracker sowie Helfern für Battlegrounds und Arena. Funktionsumfang und Optik orientieren sich an Firestone, Flint ist aber eine unabhängige Clean-Room-Implementierung. Hauptziel ist der **native Linux-Client**, gestartet über [hearthstone-linux-gui](https://github.com/DawnMagnet/hearthstone-linux-gui) (ohne Wine); Wine/Proton und Windows werden ebenfalls unterstützt. Flint bekommt ein eigenes Repository und wird über den Mod-Index installiert.
 
 ## Aufbau des Repositorys
@@ -27,6 +36,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 | `locales/` | Fluent-Kataloge des Hosts, gemeinsam für Rust und UI (`en` als Basis, `de`) |
 | `sdk/` | Mod-SDK und TypeScript-Typen (Phase 3) |
 | `mods/` | Beispiel-Mods (Phase 3) |
+| `assets/branding/` | Logos von overLay und Flint ([Details](assets/branding/README.de.md)) |
 | `tools/` | Skripte für das Repository |
 | `docs/` | Recherche und Design-Dokumente |
 

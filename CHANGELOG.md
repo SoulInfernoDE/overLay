@@ -13,6 +13,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Added
 
+- Host app (`overlay-app`, Tauri 2): tray icon with localized menu, launcher window on demand, single instance, global hotkey `Ctrl+Shift+O`, optional autostart; 27 MB PSS when started in the tray
+- Game detection (`overlay-games`) for the native Linux client, Wine/Proton and Windows, driven by the game catalog in `games/`
+- Persistent settings (`overlay-settings`): language, start in tray, autostart, hotkey
+- Launcher UI: game list with live status, settings page, custom title bar; runs with sample data in a plain browser
 - Overlay window spike (`spikes/overlay-window`): transparent click-through Tauri 2 window that follows the Hearthstone window, with a measurement script and first results
 - Logos for overLay and Flint (SVG for dark and light backgrounds, PNG icons from 16 to 512 px, CC BY-SA 4.0) with a reproducible generator script; the overLay icon is used as favicon and in the title bar
 - Phase 0 foundation: GPL-3.0-or-later license, roadmap, research notes, mod policy, contributing guide, code of conduct (Contributor Covenant 3.0) and security policy, each in English and German

@@ -71,13 +71,16 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 - Toolchain: Rust 1.99 (edition 2024), Node 26, Svelte 5, Vite 8, TypeScript 6 (svelte-check does not support TypeScript 7 yet)
 
 ### Phase 1: Host core & launcher UI *(4–6 weeks)*
-- [ ] Tauri shell with a **tray-only mode** (no WebView while the window is closed)
-- [ ] Launcher UI modelled on Overwolf: dock on the left, **Library**, **Store** (local only for now), **Settings**, custom title bar
-- [ ] **Game detection**: processes on Windows (WinAPI, no `tasklist` polling), on Linux via `/proc` for the **native client** (`Hearthstone.x86_64`) and for Wine/Proton processes (`Hearthstone.exe` under `wine64-preloader`/`wineserver`)
-- [ ] Game catalog (`games/*.toml`): process names, window titles, launcher hints
-- [ ] Global hotkeys (Windows: RegisterHotKey; Linux: XDG GlobalShortcuts portal, X11 fallback)
-- [ ] Persistent settings (TOML), optional autostart
-- **Acceptance:** the host starts, detects Hearthstone natively and under Proton, shows its status in the launcher, and stays within the resource budget.
+- [x] Tauri shell (`crates/overlay-app`) with a **tray-only mode**: started in the tray (`--minimized`, used by autostart) it needs **27 MB PSS** and no WebView; the launcher window is created on demand and destroyed when closed; single instance (a second start opens the window)
+- [ ] Free the memory WebKit keeps after the launcher window was closed (81 MB PSS instead of 27 MB, the network process and libraries stay loaded). Plan: run the launcher UI in a separate process that exits with the window
+- [x] Launcher UI modelled on Overwolf: dock on the left, **Library** (games with live status), **Store** (placeholder until phase 4), **Settings**, custom title bar with drag region, minimize and close
+- [x] **Game detection** (`crates/overlay-games`): ToolHelp snapshot on Windows, `/proc` on Linux for the **native client** (`Hearthstone.x86_64`) and Wine/Proton (`Hearthstone.exe`), every 2 s, start/exit events to UI and tray
+- [x] Game catalog (`games/*.toml`, embedded at build time): process names per platform and flavor. Window titles and launcher hints follow with phase 2 and 5
+- [x] Global hotkey to show or hide the launcher (default `Ctrl+Shift+O`) on Windows and X11
+- [ ] Global hotkeys on Wayland through the XDG GlobalShortcuts portal
+- [x] Persistent settings (`crates/overlay-settings`, TOML in the config folder, atomic writes, broken files moved aside), language, start in tray, optional autostart
+- [x] Tray menu and all launcher text localized (English, German), following the system language unless the user picks one
+- **Acceptance:** the host starts, detects Hearthstone natively and under Proton, shows its status in the launcher, and stays within the resource budget. *Status 2026-10-14: met for the native client on Linux (X11); Proton and Windows still to be tested.*
 
 ### Phase 2: Overlay engine *(4–6 weeks)*
 - [ ] Overlay windows: transparent, borderless, topmost, **click-through per region** (interactive areas take input, everything else goes to the game)

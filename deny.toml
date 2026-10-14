@@ -7,6 +7,11 @@ all-features = true
 [advisories]
 version = 2
 yanked = "deny"
+ignore = [
+  # Unmaintained, not vulnerable: a compile-time proc macro pulled in by gtk-rs 0.18,
+  # which Tauri 2 needs on Linux. Remove once Tauri moves to newer gtk bindings.
+  { id = "RUSTSEC-2024-0370", reason = "build-time only, via gtk-rs 0.18 (Tauri 2 on Linux)" },
+]
 
 [licenses]
 version = 2

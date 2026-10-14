@@ -4,4 +4,5 @@ ui/dist/
 package-lock.json
 *.md
 spikes/*/gen/
+crates/*/gen/
 spikes/*/target/

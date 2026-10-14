@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "overLay",
+  "version": "0.0.0",
+  "identifier": "io.github.soulinfernode.overlay",
+  "build": {
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../../ui/dist",
+    "beforeDevCommand": {
+      "script": "npm run dev -w ui -- --port 5173 --strictPort",
+      "cwd": "../.."
+    },
+    "beforeBuildCommand": {
+      "script": "npm run build -w ui",
+      "cwd": "../.."
+    }
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost",
+      "devCsp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost ws://localhost:5173"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["deb", "appimage", "msi"],
+    "category": "Game",
+    "shortDescription": "Lean open-source overlay manager for games",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png",
+      "icons/icon.ico"
+    ]
+  }
+}

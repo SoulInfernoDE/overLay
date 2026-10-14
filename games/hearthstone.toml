@@ -1,0 +1,22 @@
+# Game catalog entry. One file per game; the host embeds all files at build time.
+
+id = "hearthstone"
+name = "Hearthstone"
+
+# Native Linux client (official macOS game files on Unity's Linux player),
+# e.g. started through hearthstone-linux-gui.
+[[processes]]
+executable = "Hearthstone.x86_64"
+platform = "linux"
+flavor = "native"
+
+# Windows client under Wine or Proton (Lutris, Steam, Bottles, Heroic …).
+[[processes]]
+executable = "Hearthstone.exe"
+platform = "linux"
+flavor = "wine"
+
+[[processes]]
+executable = "Hearthstone.exe"
+platform = "windows"
+flavor = "native"

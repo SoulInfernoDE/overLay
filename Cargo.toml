@@ -11,14 +11,21 @@ repository = "https://github.com/SoulInfernoDE/overLay"
 authors = ["overLay contributors"]
 
 [workspace.dependencies]
+directories = "6"
 fluent-bundle = "0.16"
 fluent-langneg = "0.13"  # must match the version fluent-bundle uses (unic-langid based)
 fluent-syntax = "0.12"
+serde = { version = "1", features = ["derive"] }
+tempfile = "3"
 thiserror = "2"
+toml = "1"
 unic-langid = "0.9"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Diagnostics_ToolHelp"] }
 
 [workspace.lints.rust]
-unsafe_code = "forbid"
+# Deny, not forbid: OS bindings (e.g. the Windows process list) need a
+# narrowly scoped #[allow(unsafe_code)] with a SAFETY comment.
+unsafe_code = "deny"
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }

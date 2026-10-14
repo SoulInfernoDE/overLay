@@ -8,8 +8,9 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use fluent_bundle::FluentResource;
 use fluent_bundle::concurrent::FluentBundle;
-use fluent_bundle::{FluentArgs, FluentResource};
+pub use fluent_bundle::{FluentArgs, FluentValue};
 use fluent_langneg::{NegotiationStrategy, negotiate_languages};
 use fluent_syntax::ast;
 use unic_langid::LanguageIdentifier;
@@ -41,6 +42,9 @@ pub struct MissingMessages {
     pub ids: Vec<String>,
 }
 
+/// A catalog file compiled into a binary: `(locale, file name, contents)`.
+pub type EmbeddedFile = (&'static str, &'static str, &'static str);
+
 /// Formats messages along a negotiated fallback chain of locales.
 pub struct Localizer {
     chain: Vec<(LanguageIdentifier, FluentBundle<FluentResource>)>,
@@ -51,14 +55,51 @@ impl Localizer {
     /// always ending the chain with the base locale.
     pub fn load(root: &Path, requested: &[LanguageIdentifier]) -> Result<Self, I18nError> {
         let available = available_locales(root)?;
+        Self::build(root, &available, requested, |locale| {
+            read_catalog(root, locale)
+        })
+    }
+
+    /// Like [`Localizer::load`], for catalogs embedded with `include_str!`.
+    pub fn from_embedded(
+        files: &[EmbeddedFile],
+        requested: &[LanguageIdentifier],
+    ) -> Result<Self, I18nError> {
+        let mut available = Vec::new();
+        for (locale, _, _) in files {
+            let id = locale
+                .parse::<LanguageIdentifier>()
+                .map_err(|_| I18nError::InvalidLocale((*locale).to_owned()))?;
+            if !available.contains(&id) {
+                available.push(id);
+            }
+        }
+        Self::build(Path::new("<embedded>"), &available, requested, |locale| {
+            let name = locale.to_string();
+            Ok(files
+                .iter()
+                .filter(|(l, _, _)| *l == name)
+                .map(|(l, file, source)| {
+                    (PathBuf::from(format!("{l}/{file}")), (*source).to_owned())
+                })
+                .collect())
+        })
+    }
+
+    fn build(
+        origin: &Path,
+        available: &[LanguageIdentifier],
+        requested: &[LanguageIdentifier],
+        read: impl Fn(&LanguageIdentifier) -> Result<Vec<(PathBuf, String)>, I18nError>,
+    ) -> Result<Self, I18nError> {
         let base = base_locale();
         if !available.contains(&base) {
-            return Err(I18nError::MissingBase(root.to_path_buf()));
+            return Err(I18nError::MissingBase(origin.to_path_buf()));
         }
 
         let mut order: Vec<LanguageIdentifier> = negotiate_languages(
             requested,
-            &available,
+            available,
             Some(&base),
             NegotiationStrategy::Filtering,
         )
@@ -71,7 +112,7 @@ impl Localizer {
         let chain = order
             .into_iter()
             .map(|locale| {
-                let bundle = load_bundle(root, &locale)?;
+                let bundle = build_bundle(&locale, read(&locale)?)?;
                 Ok((locale, bundle))
             })
             .collect::<Result<_, I18nError>>()?;
@@ -208,12 +249,12 @@ fn parse(path: &Path, source: String) -> Result<FluentResource, I18nError> {
     })
 }
 
-fn load_bundle(
-    root: &Path,
+fn build_bundle(
     locale: &LanguageIdentifier,
+    files: Vec<(PathBuf, String)>,
 ) -> Result<FluentBundle<FluentResource>, I18nError> {
     let mut bundle = FluentBundle::new_concurrent(vec![locale.clone()]);
-    for (path, source) in read_catalog(root, locale)? {
+    for (path, source) in files {
         let resource = parse(&path, source)?;
         bundle
             .add_resource(resource)

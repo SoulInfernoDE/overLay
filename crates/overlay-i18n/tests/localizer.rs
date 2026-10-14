@@ -43,3 +43,24 @@ fn reports_missing_messages() {
         }]
     );
 }
+
+#[test]
+fn embedded_catalogs_fall_back_to_english() {
+    let files = [
+        (
+            "en",
+            "main.ftl",
+            "greeting = Hello\nonly-english = Only in English\n",
+        ),
+        ("de", "main.ftl", "greeting = Hallo\n"),
+    ];
+    let l10n = overlay_i18n::Localizer::from_embedded(&files, &[langid!("de-AT")]).unwrap();
+    assert_eq!(l10n.format("greeting", None), "Hallo");
+    assert_eq!(l10n.format("only-english", None), "Only in English");
+}
+
+#[test]
+fn embedded_catalogs_need_english() {
+    let files = [("de", "main.ftl", "greeting = Hallo\n")];
+    assert!(overlay_i18n::Localizer::from_embedded(&files, &[]).is_err());
+}

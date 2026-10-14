@@ -1,0 +1,16 @@
+[
+  { "cost": 0, "name": "Spark of Insight", "count": 2, "rarity": "common", "drawn": 1 },
+  { "cost": 1, "name": "Ember Scout", "count": 2, "rarity": "common", "drawn": 0 },
+  { "cost": 1, "name": "Cinder Familiar", "count": 2, "rarity": "rare", "drawn": 2 },
+  { "cost": 2, "name": "Kindled Apprentice", "count": 2, "rarity": "common", "drawn": 0 },
+  { "cost": 2, "name": "Smoldering Ward", "count": 1, "rarity": "epic", "drawn": 0 },
+  { "cost": 2, "name": "Flint Knapper", "count": 2, "rarity": "rare", "drawn": 1 },
+  { "cost": 3, "name": "Hearthwood Ranger", "count": 2, "rarity": "common", "drawn": 0 },
+  { "cost": 3, "name": "Ashen Tactician", "count": 2, "rarity": "rare", "drawn": 0 },
+  { "cost": 4, "name": "Blazing Courier", "count": 2, "rarity": "common", "drawn": 0 },
+  { "cost": 4, "name": "Molten Bulwark", "count": 1, "rarity": "epic", "drawn": 0 },
+  { "cost": 5, "name": "Pyre Warden", "count": 2, "rarity": "common", "drawn": 0 },
+  { "cost": 6, "name": "Obsidian Colossus", "count": 1, "rarity": "epic", "drawn": 0 },
+  { "cost": 7, "name": "Ignis, the Unbound", "count": 1, "rarity": "legendary", "drawn": 0 },
+  { "cost": 8, "name": "Starfall Cataclysm", "count": 1, "rarity": "legendary", "drawn": 0 }
+]

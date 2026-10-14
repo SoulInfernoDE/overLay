@@ -39,6 +39,7 @@ The launcher is inspired by the dock-based look of popular overlay platforms, bu
 | `assets/branding/` | Logos of overLay and Flint ([details](assets/branding/README.md)) |
 | `tools/` | Repository scripts |
 | `docs/` | Research and design documents |
+| `spikes/` | Throwaway measurement projects, not part of CI |
 
 ## Development
 

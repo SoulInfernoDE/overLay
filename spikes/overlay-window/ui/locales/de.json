@@ -1,0 +1,14 @@
+{
+  "tracker.title": "Deck",
+  "tracker.remaining": "noch {n}",
+  "tracker.collapse": "Einklappen",
+  "tracker.expand": "Ausklappen",
+  "status.searching": "Warte auf Hearthstone …",
+  "status.demo": "Demo-Modus · {w}×{h}",
+  "status.tracking": "{flavor} · PID {pid} · {w}×{h} bei {x},{y}",
+  "status.hidden": "Hearthstone minimiert",
+  "status.stacking": "Stapelung: {mode}",
+  "status.fps-on": "FPS an",
+  "status.fps-off": "FPS aus",
+  "status.fps": "{n} FPS"
+}

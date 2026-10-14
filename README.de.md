@@ -39,6 +39,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 | `assets/branding/` | Logos von overLay und Flint ([Details](assets/branding/README.de.md)) |
 | `tools/` | Skripte für das Repository |
 | `docs/` | Recherche und Design-Dokumente |
+| `spikes/` | Wegwerf-Messprojekte, nicht Teil der CI |
 
 ## Entwicklung
 

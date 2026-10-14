@@ -12,6 +12,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- Spike für das Overlay-Fenster (`spikes/overlay-window`): transparentes, durchklickbares Tauri-2-Fenster, das dem Hearthstone-Fenster folgt, mit Messskript und ersten Ergebnissen
 - Logos für overLay und Flint (SVG für dunkle und helle Hintergründe, PNG-Icons von 16 bis 512 px, CC BY-SA 4.0) mit reproduzierbarem Generator-Skript; das overLay-Icon dient als Favicon und erscheint in der Titelleiste
 - Fundament aus Phase 0: Lizenz GPL-3.0-or-later, Fahrplan, Recherche, Mod-Richtlinie, Leitfaden zum Mitwirken, Verhaltenskodex (Contributor Covenant 3.0) und Sicherheitsrichtlinie, jeweils auf Englisch und Deutsch
 - Cargo-Workspace (Rust 1.99, Edition 2024) mit `overlay-i18n`: Fluent-Kataloge mit englischer Fallback-Kette und Vollständigkeitsprüfung über alle Sprachen

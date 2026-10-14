@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>overLay spike</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="status interactive" id="status">
+      <span id="status-text"></span>
+      <button id="fps-toggle" type="button"></button>
+      <span id="fps"></span>
+    </div>
+
+    <aside class="tracker interactive" id="tracker">
+      <header class="tracker-header" id="tracker-handle">
+        <span id="tracker-title"></span>
+        <span class="remaining" id="tracker-remaining"></span>
+        <button id="collapse" type="button"></button>
+      </header>
+      <ol class="cards" id="cards"></ol>
+    </aside>
+  </body>
+</html>

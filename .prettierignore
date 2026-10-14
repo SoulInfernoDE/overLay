@@ -3,3 +3,5 @@ target/
 ui/dist/
 package-lock.json
 *.md
+spikes/*/gen/
+spikes/*/target/

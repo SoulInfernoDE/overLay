@@ -1,0 +1,23 @@
+[package]
+name = "overlay-window-spike"
+description = "Throwaway spike: transparent click-through overlay window that follows the Hearthstone window"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.99"
+license = "GPL-3.0-or-later"
+publish = false
+
+# Kept out of the main workspace and CI on purpose: this is a measurement spike.
+[workspace]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+x11rb = "0.14"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Must match the gtk version tauri 2 uses internally.
+gtk = "0.18"

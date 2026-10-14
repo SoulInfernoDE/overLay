@@ -49,8 +49,9 @@ export function currentLocale(): string {
   return chain[0]?.locales[0] ?? FALLBACK_LOCALE;
 }
 
-export function setLocale(locale: string): void {
-  chain = resolveChain([locale]);
+/** `language` is the user's choice; `null` follows the system (browser) languages. */
+export function applyLanguage(language: string | null): void {
+  chain = resolveChain(language ? [language] : navigator.languages);
   document.documentElement.lang = currentLocale();
 }
 

@@ -1,0 +1,37 @@
+[package]
+name = "overlay-app"
+description = "The overLay host application: tray, launcher window and game detection"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+default-run = "overlay"
+
+[[bin]]
+name = "overlay"
+path = "src/main.rs"
+
+[features]
+# Enabled by `tauri build`: serve the bundled UI instead of the Vite dev server.
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+overlay-games = { path = "../overlay-games" }
+overlay-i18n = { path = "../overlay-i18n" }
+overlay-settings = { path = "../overlay-settings" }
+serde.workspace = true
+sys-locale = "0.3"
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
+unic-langid.workspace = true
+
+[lints]
+workspace = true

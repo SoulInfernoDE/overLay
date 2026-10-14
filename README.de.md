@@ -31,27 +31,50 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 | Pfad | Inhalt |
 |---|---|
-| `crates/` | Rust-Crates des Hosts (`overlay-i18n`, weitere folgen) |
+| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App), `overlay-games`, `overlay-settings`, `overlay-i18n` |
 | `ui/` | Launcher-Oberfläche (Svelte 5, TypeScript, Vite) |
 | `locales/` | Fluent-Kataloge des Hosts, gemeinsam für Rust und UI (`en` als Basis, `de`) |
 | `sdk/` | Mod-SDK und TypeScript-Typen (Phase 3) |
 | `mods/` | Beispiel-Mods (Phase 3) |
 | `assets/branding/` | Logos von overLay und Flint ([Details](assets/branding/README.de.md)) |
-| `tools/` | Skripte für das Repository |
+| `games/` | Spielekatalog: welche Prozesse zu welchem Spiel gehören |
+| `tools/` | Skripte für das Repository (Logo-Generator, `measure.sh` für RAM/CPU) |
 | `docs/` | Recherche und Design-Dokumente |
 | `spikes/` | Wegwerf-Messprojekte, nicht Teil der CI |
 
 ## Entwicklung
 
-Voraussetzungen: [rustup](https://rustup.rs) (installiert die gepinnte Toolchain automatisch) und Node.js 26 (siehe `.nvmrc`).
+Voraussetzungen: [rustup](https://rustup.rs) (installiert die gepinnte Toolchain automatisch) und Node.js 26 (siehe `.nvmrc`). Unter Linux braucht Tauri außerdem einige Systembibliotheken (Debian/Ubuntu/Mint):
+
+```bash
+sudo apt install libwebkit2gtk-4.1-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev
+```
+
+JavaScript-Abhängigkeiten installieren:
 
 ```bash
 npm ci
 ```
 
+Die Host-App mit Hot Reload starten:
+
+```bash
+npm run app:dev
+```
+
+Installierbare Pakete bauen (`.deb`, AppImage, MSI):
+
+```bash
+npm run app:build
+```
+
+Nur an der Oberfläche im Browser arbeiten (Beispieldaten statt Host):
+
 ```bash
 npm run dev
 ```
+
+Rust-Tests ausführen:
 
 ```bash
 cargo test
@@ -60,7 +83,7 @@ cargo test
 Alle Prüfungen, die auch die CI ausführt:
 
 ```bash
-cargo fmt --all --check && cargo clippy --all-targets -- -D warnings && cargo test && cargo deny check && npm run format:check && npm run check && npm run build && npm run licenses
+npm run format:check && npm run check && npm run build && npm run licenses && cargo fmt --all --check && cargo clippy --all-targets -- -D warnings && cargo test && cargo deny check
 ```
 
 ## Dokumentation

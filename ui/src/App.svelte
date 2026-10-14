@@ -1,22 +1,25 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Dock from './components/Dock.svelte';
   import LibraryView from './components/LibraryView.svelte';
   import SettingsView from './components/SettingsView.svelte';
   import StoreView from './components/StoreView.svelte';
+  import TitleBar from './components/TitleBar.svelte';
+  import { app, initApp } from './lib/app-state.svelte';
   import { t } from './lib/i18n.svelte';
   import type { SectionId } from './lib/sections';
-  import appIcon from '../../assets/branding/overlay/icon.svg';
 
   let active: SectionId = $state('library');
+
+  onMount(() => {
+    void initApp();
+  });
 </script>
 
 <div class="shell">
   <Dock bind:active />
   <div class="main">
-    <header class="titlebar">
-      <img class="brand-icon" src={appIcon} alt="" width="20" height="20" />
-      <span class="brand">overLay</span>
-    </header>
+    <TitleBar />
     <main class="content">
       {#if active === 'library'}
         <LibraryView navigate={(id) => (active = id)} />
@@ -26,7 +29,9 @@
         <SettingsView />
       {/if}
     </main>
-    <footer class="status">{t('status-version', { version: __APP_VERSION__ })}</footer>
+    <footer class="status">
+      {t('status-version', { version: app.snapshot?.version ?? __APP_VERSION__ })}
+    </footer>
   </div>
 </div>
 
@@ -41,25 +46,6 @@
     flex: 1;
     flex-direction: column;
     min-width: 0;
-  }
-
-  .titlebar {
-    display: flex;
-    align-items: center;
-    height: var(--ol-titlebar-height);
-    padding: 0 var(--ol-space-4);
-    background: var(--ol-surface-dock);
-    border-bottom: 1px solid var(--ol-border);
-  }
-
-  .brand-icon {
-    margin-right: var(--ol-space-2);
-  }
-
-  .brand {
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--ol-accent);
   }
 
   .content {

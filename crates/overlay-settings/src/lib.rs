@@ -29,6 +29,36 @@ pub struct Settings {
     pub autostart: bool,
     pub hotkeys: Hotkeys,
     pub overlay: OverlaySettings,
+    pub developer: DeveloperSettings,
+    /// Per-mod choices, keyed by mod id. Mods without an entry are enabled.
+    pub mods: BTreeMap<String, ModPreferences>,
+}
+
+impl Settings {
+    pub fn mod_enabled(&self, id: &str) -> bool {
+        self.mods.get(id).is_none_or(|m| m.enabled)
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct DeveloperSettings {
+    /// Shows developer tools in the launcher and loads `mod_paths`.
+    pub enabled: bool,
+    /// Local mod folders loaded in developer mode.
+    pub mod_paths: Vec<PathBuf>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ModPreferences {
+    pub enabled: bool,
+}
+
+impl Default for ModPreferences {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
 }
 
 impl StoredFile for Settings {
@@ -274,6 +304,11 @@ mod tests {
                 stacking: Stacking::Override,
                 demo_widget: true,
             },
+            developer: DeveloperSettings {
+                enabled: true,
+                mod_paths: vec![PathBuf::from("/home/me/my-mod")],
+            },
+            mods: BTreeMap::from([("org.example.x".into(), ModPreferences { enabled: false })]),
         };
         store.save(&settings).unwrap();
         let (loaded, error) = store.load();
@@ -341,5 +376,15 @@ mod tests {
         );
         assert!(layout.widgets("other", "1920x1080").is_empty());
         assert!(layout.widgets("hs", "garbage").is_empty());
+    }
+
+    #[test]
+    fn mods_are_enabled_unless_switched_off() {
+        let mut settings = Settings::default();
+        assert!(settings.mod_enabled("org.example.x"));
+        settings
+            .mods
+            .insert("org.example.x".into(), ModPreferences { enabled: false });
+        assert!(!settings.mod_enabled("org.example.x"));
     }
 }

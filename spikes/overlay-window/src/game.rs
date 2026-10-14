@@ -38,6 +38,7 @@ pub struct X11Tracker {
     net_wm_pid: u32,
     net_wm_state: u32,
     net_wm_state_hidden: u32,
+    net_active_window: u32,
 }
 
 impl X11Tracker {
@@ -51,6 +52,7 @@ impl X11Tracker {
             net_wm_pid: atom(b"_NET_WM_PID")?,
             net_wm_state: atom(b"_NET_WM_STATE")?,
             net_wm_state_hidden: atom(b"_NET_WM_STATE_HIDDEN")?,
+            net_active_window: atom(b"_NET_ACTIVE_WINDOW")?,
             root,
             conn,
         })
@@ -104,6 +106,22 @@ impl X11Tracker {
             width: geometry.width.into(),
             height: geometry.height.into(),
         })
+    }
+
+    /// Whether the window manager reports `window` as the active (focused) window.
+    pub fn is_active(&self, window: Window) -> Result<bool> {
+        let active = self
+            .conn
+            .get_property(
+                false,
+                self.root,
+                self.net_active_window,
+                AtomEnum::WINDOW,
+                0,
+                1,
+            )?
+            .reply()?;
+        Ok(active.value32().and_then(|mut v| v.next()) == Some(window))
     }
 
     pub fn is_hidden(&self, window: Window) -> Result<bool> {

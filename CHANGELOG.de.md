@@ -8,6 +8,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Geändert
 
+- Fahrplan nach dem Overlay-Spike: eine gemeinsame Overlay-WebView für alle Mods, das Overlay nimmt nie den Fokus, klickbare Bereiche werden mit dem Device-Pixel-Ratio umgerechnet; Orte von `log.config` und Logs beim nativen Client bestätigt
 - Fahrplan und Recherche: Der native Linux-Client von Hearthstone (hearthstone-linux-gui, macOS-Spieldateien auf Unitys Linux-Player) ist jetzt Hauptziel von Flint, mit Details zu Prozess, Pfaden und Logs
 
 ### Hinzugefügt

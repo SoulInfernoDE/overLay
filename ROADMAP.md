@@ -22,7 +22,7 @@ overLay is an **open-source overlay manager** for games on **Linux (native, Wine
 3. **Verify first, then activate.** An update is downloaded, its signature and hash are checked, it is staged, and only then activated. If an update asks for new permissions or domains, the user must approve them.
 4. **Resource budget as an acceptance criterion:**
    - With no game running, only the native core process runs, no WebView (target: < 30 MB RAM)
-   - With an overlay active: < 150 MB RAM in total, < 2 % CPU when idle
+   - With an overlay active: ≤ 150 MB RAM in total, < 2 % CPU when idle (spike over the running game: 146 MB, 0.5 %)
    - Installer < 20 MB
 5. **No code injection into games** by default. The overlay runs as its own window or surface, not as a DirectX or Vulkan hook. This keeps anti-cheat risk low and works under Proton.
 6. **i18n from day one.** All text lives in locale catalogs, with English as the base and fallback and German as the second language. This applies to the host **and** to mods.
@@ -51,7 +51,9 @@ overLay is an **open-source overlay manager** for games on **Linux (native, Wine
 | **Tauri 2 (Rust + system WebView)** instead of Electron/CEF | No bundled Chromium, so much less RAM and disk use. WebView2 on Windows, WebKitGTK on Linux. The UI can still use web tech, which keeps mods easy to write (as with Overwolf). |
 | **Mods as web bundles + manifest**, game data from the host | Mods run no native code. Memory reading, file access and process access live in reviewed **game providers** inside the host. This keeps the sandbox tight, and mods need no DLLs (unlike Overwolf's `extra-objects`). |
 | **Later: providers as WASM components** (wasmtime, capability-based) | Third parties can ship providers for new games without getting full system access. |
-| **Overlay as its own transparent topmost window** | Works over borderless fullscreen games (HDT has done this for years), without injection and also under Proton. Exclusive fullscreen (Windows) is deliberately not supported. |
+| **Overlay as its own transparent topmost window** | Works over borderless fullscreen games (HDT has done this for years), without injection and also under Proton. Exclusive fullscreen (Windows) is deliberately not supported. Confirmed by the [spike](spikes/overlay-window/RESULTS.md) over the native client. |
+| **One shared overlay webview for all in-game widgets of all mods** | With WebKitGTK every webview window starts its own web process (about 50 MB each, measured). Mods run in sandboxed frames with their own origin and CSP inside that one webview; clicks outside the widgets pass through via the input shape. The desktop main window is a second webview that only exists while it is open. |
+| **Overlay never takes focus; input shape in device pixels** | Lessons from the spike: the overlay must not take keyboard focus from the game, and the clickable regions must be converted from CSS pixels by the device pixel ratio (e.g. 1.2 at 115 dpi), otherwise they drift away from the visible widgets and block game buttons. |
 | **UI framework for host and Flint: Svelte 5** (TypeScript, Vite) | Compiles to small bundles without a heavy runtime (Firestone uses Angular). Mods can still use any framework, because the mod API is plain web-standard JavaScript. |
 | **Local data: SQLite** (from Rust, `rusqlite`) | Games, decks, replays and stats stay local. No account required. |
 
@@ -132,7 +134,7 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
   2. Wine/Proton prefixes: Steam `compatdata`, Lutris, Bottles, Heroic, Faugus
   3. Windows: registry/Battle.net config
   4. a user-chosen path
-- [ ] Create or extend `log.config` automatically (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Native client: macOS-style location `~/Library/Preferences/Blizzard/Hearthstone/` (to be confirmed in the spike); Wine: inside the prefix
+- [ ] Create or extend `log.config` automatically (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Native client: `~/Library/Preferences/Blizzard/Hearthstone/log.config` (confirmed in the spike); logs then appear in `<game_dir>/Logs/Hearthstone_<timestamp>/`; Wine: inside the prefix
 - [ ] Handle Hearthstone's log size cap (logs are truncated at about 10 MB) and log rotation without losing the game state
 - [ ] **Power.log parser in Rust** (references: python-hslog, HSTracker, both MIT): entities, tags, blocks, zone changes → game state and events (`game-start`, `mulligan`, `card-drawn`, `card-played`, `turn-start`, `game-end` …)
 - [ ] Game mode detection (Ranked/Casual, Arena, BG, Brawl, Mercs, Solo)
@@ -202,5 +204,5 @@ Still open:
 
 1. ~~Settle open decisions 1–3~~ ✓
 2. ~~Do phase 0~~ ✓
-3. Create the GitHub repository and check the first CI run
-4. **Technical spike** (before phase 1, about 1 week): a transparent click-through Tauri window over the **native Linux client (hearthstone-linux-gui)** and over Hearthstone under Proton, on KDE and GNOME, and on Windows, with RAM measurements. Also confirm the native client's `log.config` and log locations. This is the riskiest assumption in the whole project and should be tested first.
+3. ~~Create the GitHub repository and check the first CI run~~ ✓
+4. **Technical spike** (largely done: native client on X11 works, see [results](spikes/overlay-window/RESULTS.md); still open: fullscreen mode, Proton, Wayland/KDE/GNOME, Windows): a transparent click-through Tauri window over the **native Linux client (hearthstone-linux-gui)** and over Hearthstone under Proton, on KDE and GNOME, and on Windows, with RAM measurements. Also confirm the native client's `log.config` and log locations. This is the riskiest assumption in the whole project and should be tested first.

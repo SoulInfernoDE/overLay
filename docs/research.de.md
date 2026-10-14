@@ -188,8 +188,8 @@ Fakten, die für Flint wichtig sind (aus dem Quellcode des Launchers, Stand 2026
 | Standard-`game_dir` | `$XDG_DATA_HOME/hearthstone-linux-gui/game` (meist `~/.local/share/hearthstone-linux-gui/game`) |
 | Launcher-Konfiguration | `$XDG_CONFIG_HOME/hearthstone-linux-gui/config.toml`, optionaler Schlüssel `game_dir`, außerdem `installed_version`, `locale`, `region`, `use_mangohud` … |
 | Mono-Laufzeit | `Bin/Hearthstone_Data/MonoBleedingEdge/x86_64/libmonobdwgc-2.0.so`, ein Speicherleser arbeitet also mit einem normalen Linux-Prozess, ohne Wine-Adressumrechnung |
-| Spieleinstellungen | Der Linux-Unity-Player nutzt den **macOS-Ort**: `~/Library/Preferences/Blizzard/Hearthstone/options.txt`. `log.config` wird daher im selben Ordner erwartet (**im Spike zu bestätigen**) |
-| Spiel-Logs | `Logs/` unterhalb des Spielordners (das ursprüngliche Projekt verweist zur Fehlersuche auf `Bin/Logs/`; **zu bestätigen**). Der Launcher leitet Unitys stdout/stderr (`Player.log`) in seinen eigenen Log-Ordner um |
+| Spieleinstellungen | Der Linux-Unity-Player nutzt den **macOS-Ort**: `~/Library/Preferences/Blizzard/Hearthstone/options.txt`. `log.config` gehört in denselben Ordner: am 2026-10-14 **bestätigt**, der Client schreibt dann `Power.log`, `Zone.log` und die übrigen eingeschalteten Logs |
+| Spiel-Logs | `<game_dir>/Logs/Hearthstone_<JJJJ_MM_TT_hh_mm_ss>/`, ein Ordner pro Spielstart (**bestätigt**; nicht `Bin/Logs/`). Der Launcher leitet Unitys stdout/stderr (`Player.log`) in seinen eigenen Log-Ordner um |
 | Fenster | Unity-Linux-Player, normalerweise X11/XWayland, also dasselbe Overlay-Backend wie bei Proton |
 
 **Weitere Linux-Tracker (als Referenz):**

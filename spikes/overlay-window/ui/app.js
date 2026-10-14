@@ -30,7 +30,9 @@ function syncInteractiveRegions() {
       const r = el.getBoundingClientRect();
       return { x: r.x, y: r.y, width: r.width, height: r.height };
     });
-    invoke('set_interactive_regions', { rects }).catch((err) => console.error(err));
+    invoke('set_interactive_regions', { rects, devicePixelRatio: window.devicePixelRatio }).catch(
+      (err) => console.error(err),
+    );
   });
 }
 

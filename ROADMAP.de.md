@@ -22,7 +22,7 @@ overLay ist ein **quelloffener Overlay-Manager** für Spiele unter **Linux (nati
 3. **Updates erst prüfen, dann aktivieren.** Ein Update wird heruntergeladen, Signatur und Hash werden geprüft, es wird bereitgestellt, und erst dann wird es aktiviert. Fordert ein Update neue Berechtigungen oder Domains an, muss der Nutzer zustimmen.
 4. **Ressourcenbudget als Abnahmekriterium:**
    - Ohne laufendes Spiel läuft nur der native Kernprozess, keine WebView (Ziel: < 30 MB RAM)
-   - Mit Overlay aktiv: < 150 MB RAM gesamt, < 2 % CPU im Leerlauf
+   - Mit Overlay aktiv: ≤ 150 MB RAM gesamt, < 2 % CPU im Leerlauf (Spike über dem laufenden Spiel: 146 MB, 0,5 %)
    - Installer < 20 MB
 5. **Keine Code-Injektion in Spiele** als Standard. Das Overlay läuft als eigenes Fenster bzw. eigene Oberfläche, nicht als DirectX- oder Vulkan-Hook. Das hält das Anti-Cheat-Risiko klein und funktioniert unter Proton.
 6. **i18n von Anfang an.** Alle Texte stehen in Locale-Katalogen, Englisch ist Basis und Fallback, Deutsch ist die zweite Sprache. Das gilt für Host **und** Mods.
@@ -51,7 +51,9 @@ overLay ist ein **quelloffener Overlay-Manager** für Spiele unter **Linux (nati
 | **Tauri 2 (Rust + System-WebView)** statt Electron/CEF | Kein mitgeliefertes Chromium, deutlich weniger RAM und Speicherplatz. WebView2 unter Windows, WebKitGTK unter Linux. Die UI kann trotzdem Web-Technik nutzen, damit Mods einfach zu schreiben sind (wie bei Overwolf). |
 | **Mods als Web-Bundles + Manifest**, Spiel-Daten vom Host | Mods führen keinen nativen Code aus. Speicherlesen, Dateizugriff und Prozesszugriff stecken in geprüften **Game Providers** im Host. So bleibt die Sandbox dicht, und Mods brauchen keine DLLs (anders als Overwolfs `extra-objects`). |
 | **Später: Provider als WASM-Komponenten** (wasmtime, Capability-basiert) | Drittanbieter können Provider für neue Spiele liefern, ohne vollen Systemzugriff zu bekommen. |
-| **Overlay als eigenes, transparentes Topmost-Fenster** | Funktioniert über randlosen Vollbild-Spielen (so macht es HDT seit Jahren), ohne Injektion und auch unter Proton. Exklusiver Vollbildmodus (Windows) wird bewusst nicht unterstützt. |
+| **Overlay als eigenes, transparentes Topmost-Fenster** | Funktioniert über randlosen Vollbild-Spielen (so macht es HDT seit Jahren), ohne Injektion und auch unter Proton. Exklusiver Vollbildmodus (Windows) wird bewusst nicht unterstützt. Durch den [Spike](spikes/overlay-window/RESULTS.de.md) über dem nativen Client bestätigt. |
+| **Eine gemeinsame Overlay-WebView für alle Widgets aller Mods im Spiel** | Mit WebKitGTK startet jedes WebView-Fenster einen eigenen Webprozess (je etwa 50 MB, gemessen). Mods laufen in Sandbox-Frames mit eigenem Ursprung und eigener CSP innerhalb dieser einen WebView; außerhalb der Widgets gehen Klicks über die Input-Shape ans Spiel. Das Hauptfenster auf dem Desktop ist eine zweite WebView, die nur existiert, solange es geöffnet ist. |
+| **Overlay nimmt nie den Fokus; Input-Shape in Gerätepixeln** | Lehren aus dem Spike: Das Overlay darf dem Spiel nicht den Tastaturfokus nehmen, und die klickbaren Bereiche müssen von CSS-Pixeln mit dem Device-Pixel-Ratio umgerechnet werden (z. B. 1,2 bei 115 dpi), sonst wandern sie von den sichtbaren Widgets weg und blockieren Knöpfe im Spiel. |
 | **UI-Framework für Host und Flint: Svelte 5** (TypeScript, Vite) | Kompiliert zu kleinen Bundles ohne schwere Laufzeit (Firestone nutzt Angular). Mods sind trotzdem frei in der Wahl ihres Frameworks, weil die Mod-API reines Web-Standard-JavaScript ist. |
 | **Lokale Daten: SQLite** (über Rust, `rusqlite`) | Spiele, Decks, Replays und Stats bleiben lokal. Es gibt keinen Account-Zwang. |
 
@@ -132,7 +134,7 @@ Jede Phase endet mit einem lauffähigen, veröffentlichbaren Stand. Die Zeitanga
   2. Wine/Proton-Präfixe: Steam-`compatdata`, Lutris, Bottles, Heroic, Faugus
   3. Windows: Registry/Battle.net-Config
   4. frei wählbarer Pfad
-- [ ] `log.config` automatisch anlegen bzw. ergänzen (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Nativer Client: macOS-artiger Ort `~/Library/Preferences/Blizzard/Hearthstone/` (im Spike zu bestätigen); Wine: im Präfix
+- [ ] `log.config` automatisch anlegen bzw. ergänzen (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Nativer Client: `~/Library/Preferences/Blizzard/Hearthstone/log.config` (im Spike bestätigt); die Logs erscheinen dann in `<game_dir>/Logs/Hearthstone_<Zeitstempel>/`; Wine: im Präfix
 - [ ] Größenbegrenzung der Hearthstone-Logs (sie werden bei etwa 10 MB abgeschnitten) und Log-Rotation abfangen, ohne den Spielzustand zu verlieren
 - [ ] **Power.log-Parser in Rust** (Referenz: python-hslog, HSTracker, beide MIT): Entities, Tags, Blocks, Zonenwechsel → Spielzustand und Events (`game-start`, `mulligan`, `card-drawn`, `card-played`, `turn-start`, `game-end` …)
 - [ ] Spielmodus-Erkennung (Ranked/Casual, Arena, BG, Brawl, Mercs, Solo)
@@ -202,5 +204,5 @@ Noch offen:
 
 1. ~~Offene Entscheidungen 1–3 klären~~ ✓
 2. ~~Phase 0 umsetzen~~ ✓
-3. GitHub-Repository anlegen und den ersten CI-Lauf prüfen
-4. **Technischer Spike** (vor Phase 1, etwa 1 Woche): transparentes Click-through-Tauri-Fenster über dem **nativen Linux-Client (hearthstone-linux-gui)** und über Hearthstone unter Proton, auf KDE und GNOME sowie unter Windows, mit RAM-Messung. Dazu die Orte von `log.config` und Logs beim nativen Client bestätigen. Das ist die riskanteste Annahme des ganzen Projekts und sollte zuerst geprüft werden.
+3. ~~GitHub-Repository anlegen und den ersten CI-Lauf prüfen~~ ✓
+4. **Technischer Spike** (weitgehend erledigt: nativer Client unter X11 funktioniert, siehe [Ergebnisse](spikes/overlay-window/RESULTS.de.md); noch offen: Vollbildmodus, Proton, Wayland/KDE/GNOME, Windows): transparentes Click-through-Tauri-Fenster über dem **nativen Linux-Client (hearthstone-linux-gui)** und über Hearthstone unter Proton, auf KDE und GNOME sowie unter Windows, mit RAM-Messung. Dazu die Orte von `log.config` und Logs beim nativen Client bestätigen. Das ist die riskanteste Annahme des ganzen Projekts und sollte zuerst geprüft werden.

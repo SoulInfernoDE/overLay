@@ -26,12 +26,28 @@ Transparenz und Darstellung funktionieren im Standard-Stapelmodus (`override`), 
 4. **Die CPU-Last im Leerlauf ist vernachlässigbar** (≤ 0,2 % eines Kerns, inklusive Abfrage alle 250 ms).
 5. **Das Budget von 150 MB** aus dem Fahrplan ist nur mit abgeschaltetem Compositing erreichbar. Realistisches Ziel für den Host mit einem Overlay: 140–170 MB, und nichts, solange kein Spiel läuft (Tray-Modus ohne WebView).
 
-## Noch offen (braucht das Spiel)
+## Mit dem Spiel: nativer Client (hearthstone-linux-gui)
 
-- [ ] Overlay über dem nativen Client (hearthstone-linux-gui): folgt dem Fenster, im Fenster- und Vollbildmodus, in beiden Stapel-Modi
-- [ ] Klicks gehen außerhalb des Widgets ans Spiel, auf dem Widget nicht
-- [ ] Overlay verschwindet, solange das Spiel minimiert ist
-- [ ] RAM/CPU bei laufendem Spiel
-- [ ] Nativer Client liest `~/Library/Preferences/Blizzard/Hearthstone/log.config` und schreibt `Power.log`
-- [ ] Dieselben Prüfungen unter Proton/Wine (Lutris-Installation)
+Hearthstone 37.0 auf Unity 6000.3, im Fenster 1920×1080 oben links auf dem 4K-Bildschirm, Stapel-Modus `override`, Compositing aus.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Overlay erscheint beim Spielstart und folgt dem Spielfenster | ✓ |
+| Verschwindet, solange das Spiel minimiert ist, und kommt an derselben Stelle wieder | ✓ |
+| Klicks außerhalb des Widgets kommen im Spiel an („Fertig“-Knopf, Hover und Klick) | ✓ nach Korrektur 1 |
+| Widget lässt sich einklappen und ziehen, das Spiel bekommt diese Klicks nicht | ✓ |
+| Ruckler | keine bemerkt |
+| RAM / CPU bei laufendem Spiel | 146 MB PSS / 0,5 % eines Kerns |
+| `~/Library/Preferences/Blizzard/Hearthstone/log.config` wird gelesen, `Power.log` wird geschrieben | ✓ (`<game_dir>/Logs/Hearthstone_<Zeitstempel>/`) |
+
+**Gefundene und behobene Fehler:**
+
+1. **Klickbereich verschoben.** Die Seite meldete die Widget-Rechtecke in CSS-Pixeln, die GTK-Input-Shape erwartet aber GDK-Einheiten. Bei 115 dpi skaliert WebKit CSS-Pixel um den Faktor 1,2. Der klickbare Bereich lag deshalb etwa 20 % weiter links oben als das sichtbare Widget, genau über dem „Fertig“-Knopf: Der Spiel-Mauszeiger wurde zum System-Mauszeiger, und der Knopf bekam weder Hover noch Klicks. Korrektur: Die Seite sendet `devicePixelRatio`, und der Host rechnet mit `devicePixelRatio / GDK-Skalierung` um.
+2. **Fokus.** Das Overlay-Fenster nimmt keinen Tastaturfokus mehr an (`accept_focus = false`, `focus_on_map = false`), damit ein Klick aufs Widget dem Spiel nicht den Fokus nehmen kann. Das war eine Vorsichtsmaßnahme; das gemeldete Problem erklärte sich vollständig durch Fehler 1.
+
+## Noch offen
+
+- [ ] Vollbildmodus des Spiels und Stapel-Modus `above`
+- [ ] Proton/Wine (Lutris-Installation)
+- [ ] Native Wayland-Sitzung (KDE, GNOME → XWayland), Sway
 - [ ] Windows

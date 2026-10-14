@@ -8,6 +8,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- Roadmap after the overlay spike: one shared overlay webview for all mods, the overlay never takes focus, clickable regions are converted by the device pixel ratio; the native client's `log.config` and log locations are confirmed
 - Roadmap and research: the native Linux Hearthstone client (hearthstone-linux-gui, macOS game files on Unity's Linux player) is now Flint's primary target, with its process, path and log details
 
 ### Added

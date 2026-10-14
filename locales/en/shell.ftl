@@ -37,8 +37,12 @@ settings-language-system = System language
 settings-general = General
 settings-autostart = Start { -app-name } when I log in
 settings-start-minimized = Start in the system tray
+settings-overlay = Overlay
+settings-overlay-enabled = Show the overlay over running games
+settings-overlay-demo = Show the demo widget
 settings-hotkeys = Hotkeys
 settings-hotkey-launcher = Show or hide the launcher
+settings-hotkey-overlay = Show or hide the overlay
 settings-hotkey-hint = Hotkeys can be changed in { $path } for now.
 settings-save-failed = Settings could not be saved: { $reason }
 

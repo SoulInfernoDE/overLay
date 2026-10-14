@@ -1,6 +1,5 @@
 <script lang="ts">
   import { app, updateSettings } from '../lib/app-state.svelte';
-  import { setAutostart, setLanguage, setStartMinimized } from '../lib/host';
   import { applyLanguage, availableLocales, localeName, t } from '../lib/i18n.svelte';
 
   const settings = $derived(app.snapshot?.settings);
@@ -8,7 +7,7 @@
   function changeLanguage(value: string) {
     const language = value === '' ? null : value;
     applyLanguage(language);
-    void updateSettings(() => setLanguage(language));
+    void updateSettings({ type: 'set-language', language });
   }
 </script>
 
@@ -37,7 +36,8 @@
       <input
         type="checkbox"
         checked={settings.autostart}
-        onchange={(event) => updateSettings(() => setAutostart(event.currentTarget.checked))}
+        onchange={(event) =>
+          updateSettings({ type: 'set-autostart', enabled: event.currentTarget.checked })}
       />
       <span>{t('settings-autostart')}</span>
     </label>
@@ -45,9 +45,32 @@
       <input
         type="checkbox"
         checked={settings.start_minimized}
-        onchange={(event) => updateSettings(() => setStartMinimized(event.currentTarget.checked))}
+        onchange={(event) =>
+          updateSettings({ type: 'set-start-minimized', enabled: event.currentTarget.checked })}
       />
       <span>{t('settings-start-minimized')}</span>
+    </label>
+  </section>
+
+  <section>
+    <h2>{t('settings-overlay')}</h2>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={settings.overlay.enabled}
+        onchange={(event) =>
+          updateSettings({ type: 'set-overlay-enabled', enabled: event.currentTarget.checked })}
+      />
+      <span>{t('settings-overlay-enabled')}</span>
+    </label>
+    <label class="check">
+      <input
+        type="checkbox"
+        checked={settings.overlay.demo_widget}
+        onchange={(event) =>
+          updateSettings({ type: 'set-demo-widget', enabled: event.currentTarget.checked })}
+      />
+      <span>{t('settings-overlay-demo')}</span>
     </label>
   </section>
 
@@ -56,6 +79,10 @@
     <div class="field">
       <span>{t('settings-hotkey-launcher')}</span>
       <kbd>{settings.hotkeys.toggle_launcher}</kbd>
+    </div>
+    <div class="field">
+      <span>{t('settings-hotkey-overlay')}</span>
+      <kbd>{settings.hotkeys.toggle_overlay}</kbd>
     </div>
     {#if app.snapshot?.settings_path}
       <p class="hint">{t('settings-hotkey-hint', { path: app.snapshot.settings_path })}</p>

@@ -24,14 +24,28 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 overlay-games = { path = "../overlay-games" }
 overlay-i18n = { path = "../overlay-i18n" }
+overlay-ipc = { path = "../overlay-ipc" }
 overlay-settings = { path = "../overlay-settings" }
 serde.workspace = true
+serde_json.workspace = true
 sys-locale = "0.3"
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-autostart = "2"
 tauri-plugin-global-shortcut = "2"
 tauri-plugin-single-instance = "2"
 unic-langid.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Must match the gtk version Tauri 2 uses internally.
+gtk = "0.18"
+x11rb = "0.14"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Gdi",
+  "Win32_UI_WindowsAndMessaging",
+] }
 
 [lints]
 workspace = true

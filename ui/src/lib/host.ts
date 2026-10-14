@@ -1,5 +1,6 @@
-// Bridge to the overLay host (Tauri). In a plain browser (`npm run dev` for UI work) it
-// falls back to sample data, so the launcher can be designed without the host.
+// Bridge to the overLay core. UI pages run in their own process and reach the core
+// through one Tauri command, `core_request`. In a plain browser (`npm run dev` for UI
+// work) the bridge falls back to sample data, so pages can be designed without the host.
 
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
@@ -17,7 +18,8 @@ export interface Settings {
   language: string | null;
   start_minimized: boolean;
   autostart: boolean;
-  hotkeys: { toggle_launcher: string };
+  hotkeys: { toggle_launcher: string; toggle_overlay: string };
+  overlay: { enabled: boolean; stacking: 'above' | 'override'; demo_widget: boolean };
 }
 
 export interface Snapshot {
@@ -27,6 +29,28 @@ export interface Snapshot {
   games: GameView[];
 }
 
+export interface Position {
+  x: number;
+  y: number;
+}
+
+/** Requests understood by the core (mirrors `overlay_ipc::Request`). */
+export type Request =
+  | { type: 'snapshot' }
+  | { type: 'set-language'; language: string | null }
+  | { type: 'set-autostart'; enabled: boolean }
+  | { type: 'set-start-minimized'; enabled: boolean }
+  | { type: 'set-overlay-enabled'; enabled: boolean }
+  | { type: 'set-demo-widget'; enabled: boolean }
+  | { type: 'load-layout'; game_id: string; resolution: string }
+  | {
+      type: 'save-widget-position';
+      game_id: string;
+      resolution: string;
+      widget: string;
+      position: Position;
+    };
+
 export const inHost = '__TAURI_INTERNALS__' in window;
 
 const sample: Snapshot = {
@@ -35,39 +59,49 @@ const sample: Snapshot = {
     language: null,
     start_minimized: false,
     autostart: false,
-    hotkeys: { toggle_launcher: 'Ctrl+Shift+O' },
+    hotkeys: { toggle_launcher: 'Ctrl+Shift+O', toggle_overlay: 'Ctrl+Shift+L' },
+    overlay: { enabled: true, stacking: 'above', demo_widget: false },
   },
   settings_path: null,
   games: [{ id: 'hearthstone', name: 'Hearthstone', running: null }],
 };
 
-export function getSnapshot(): Promise<Snapshot> {
-  return inHost ? invoke<Snapshot>('snapshot') : Promise.resolve(structuredClone(sample));
+function sampleResponse(request: Request): unknown {
+  const settings = sample.settings;
+  switch (request.type) {
+    case 'snapshot':
+      return structuredClone(sample);
+    case 'set-language':
+      settings.language = request.language;
+      break;
+    case 'set-autostart':
+      settings.autostart = request.enabled;
+      break;
+    case 'set-start-minimized':
+      settings.start_minimized = request.enabled;
+      break;
+    case 'set-overlay-enabled':
+      settings.overlay.enabled = request.enabled;
+      break;
+    case 'set-demo-widget':
+      settings.overlay.demo_widget = request.enabled;
+      break;
+    case 'load-layout':
+      return {};
+    case 'save-widget-position':
+      return null;
+  }
+  return structuredClone(settings);
 }
 
-function updateSample(change: Partial<Settings>): Promise<Settings> {
-  sample.settings = { ...sample.settings, ...change };
-  return Promise.resolve(structuredClone(sample.settings));
-}
-
-export function setLanguage(language: string | null): Promise<Settings> {
-  return inHost ? invoke<Settings>('set_language', { language }) : updateSample({ language });
-}
-
-export function setAutostart(enabled: boolean): Promise<Settings> {
+export function coreRequest<T>(request: Request): Promise<T> {
   return inHost
-    ? invoke<Settings>('set_autostart', { enabled })
-    : updateSample({ autostart: enabled });
+    ? invoke<T>('core_request', { request })
+    : Promise.resolve(sampleResponse(request) as T);
 }
 
-export function setStartMinimized(enabled: boolean): Promise<Settings> {
-  return inHost
-    ? invoke<Settings>('set_start_minimized', { enabled })
-    : updateSample({ start_minimized: enabled });
-}
-
-export async function onGamesChanged(callback: (games: GameView[]) => void): Promise<void> {
-  if (inHost) await listen<GameView[]>('games-changed', (event) => callback(event.payload));
+export async function onHostEvent<T>(event: string, callback: (payload: T) => void): Promise<void> {
+  if (inHost) await listen<T>(event, (e) => callback(e.payload));
 }
 
 export function minimizeWindow(): void {

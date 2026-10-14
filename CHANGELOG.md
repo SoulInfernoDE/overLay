@@ -13,6 +13,9 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Added
 
+- In-game overlay (phase 2): one transparent, click-through window per running game that follows the game window through X11 events, shows only while the game is active, never takes focus and can be toggled with `Ctrl+Shift+L`; toast notifications; a demo widget whose position is saved per game and resolution
+- Process model: the core runs without a webview, the launcher and the overlay are child processes that talk to it over stdin/stdout (`overlay-ipc`); closing the launcher brings the core back to 27 MB PSS
+- `OVERLAY_DEBUG=1` logs every change of the game window
 - Host app (`overlay-app`, Tauri 2): tray icon with localized menu, launcher window on demand, single instance, global hotkey `Ctrl+Shift+O`, optional autostart; 27 MB PSS when started in the tray
 - Game detection (`overlay-games`) for the native Linux client, Wine/Proton and Windows, driven by the game catalog in `games/`
 - Persistent settings (`overlay-settings`): language, start in tray, autostart, hotkey

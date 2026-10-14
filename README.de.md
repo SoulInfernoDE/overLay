@@ -31,7 +31,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 | Pfad | Inhalt |
 |---|---|
-| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App), `overlay-games`, `overlay-settings`, `overlay-i18n` |
+| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App: Kern-, Launcher- und Overlay-Prozess), `overlay-ipc`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
 | `ui/` | Launcher-Oberfläche (Svelte 5, TypeScript, Vite) |
 | `locales/` | Fluent-Kataloge des Hosts, gemeinsam für Rust und UI (`en` als Basis, `de`) |
 | `sdk/` | Mod-SDK und TypeScript-Typen (Phase 3) |

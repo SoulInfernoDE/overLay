@@ -72,7 +72,7 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 
 ### Phase 1: Host core & launcher UI *(4–6 weeks)*
 - [x] Tauri shell (`crates/overlay-app`) with a **tray-only mode**: started in the tray (`--minimized`, used by autostart) it needs **27 MB PSS** and no WebView; the launcher window is created on demand and destroyed when closed; single instance (a second start opens the window)
-- [ ] Free the memory WebKit keeps after the launcher window was closed (81 MB PSS instead of 27 MB, the network process and libraries stay loaded). Plan: run the launcher UI in a separate process that exits with the window
+- [x] Free the memory WebKit keeps after the launcher window was closed (81 MB PSS instead of 27 MB): solved in phase 2, the launcher runs in its own process that exits with the window
 - [x] Launcher UI modelled on Overwolf: dock on the left, **Library** (games with live status), **Store** (placeholder until phase 4), **Settings**, custom title bar with drag region, minimize and close
 - [x] **Game detection** (`crates/overlay-games`): ToolHelp snapshot on Windows, `/proc` on Linux for the **native client** (`Hearthstone.x86_64`) and Wine/Proton (`Hearthstone.exe`), every 2 s, start/exit events to UI and tray
 - [x] Game catalog (`games/*.toml`, embedded at build time): process names per platform and flavor. Window titles and launcher hints follow with phase 2 and 5
@@ -83,16 +83,19 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 - **Acceptance:** the host starts, detects Hearthstone natively and under Proton, shows its status in the launcher, and stays within the resource budget. *Status 2026-10-14: met for the native client on Linux (X11); Proton and Windows still to be tested.*
 
 ### Phase 2: Overlay engine *(4–6 weeks)*
-- [ ] Overlay windows: transparent, borderless, topmost, **click-through per region** (interactive areas take input, everything else goes to the game)
-- [ ] Attach windows to the game window: follow its position and size, hide when it is minimised or loses focus
+- [x] **Process model:** the core (tray, detection, settings, hotkeys) loads no webview; the launcher and the overlay are child processes of the same executable (`--ui launcher`, `--ui overlay`) that talk to the core over stdin/stdout (`crates/overlay-ipc`, JSON lines) and exit when they are no longer needed. Closing the launcher brings the core back to 27 MB PSS (was 81 MB)
+- [x] **One overlay window** per running game for all widgets: transparent, borderless, on top, never takes focus, **click-through per region** (widgets take input, everything else goes to the game; regions converted by the device pixel ratio)
+- [x] Follows the game window: X11 through events (`ConfigureNotify`, property changes, no polling), Windows by polling every 50 ms; visible only while the game is shown and active
 - [ ] Backends:
-  - Windows (`WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_NOACTIVATE`)
-  - **X11/XWayland** (Shape extension for click-through, `_NET_WM_STATE_ABOVE`). This is the default path under Proton, because Proton games run through XWayland.
-  - **Wayland layer-shell** (KDE, wlroots, Hyprland). GNOME falls back to XWayland.
-  - **gamescope** (Steam Deck/Game Mode): external overlay atom, **later** (phase 9)
-- [ ] Toggle the overlay by hotkey (like Overwolf), toast notifications
-- [ ] Save widget positions (per game, per resolution)
-- **Acceptance:** a demo overlay over the native Linux client and over Hearthstone under Proton and on Windows, on KDE (Wayland + XWayland), GNOME (XWayland) and Sway. Clicks pass through to the game, and widgets can be dragged.
+  - [x] **X11/XWayland** (GTK input shape, `above` or override-redirect stacking). The default under Proton and for the native Hearthstone client, which both run on X11/XWayland; tested on Cinnamon
+  - [ ] Windows (always on top, cursor-driven click-through): implemented and compiled in CI, **not yet tested on Windows**
+  - [ ] **Wayland layer-shell** (KDE, wlroots, Hyprland) for native Wayland games; not needed for Hearthstone
+  - [ ] **gamescope** (Steam Deck/Game Mode): external overlay atom, **later** (phase 9)
+- [x] Toggle the overlay by hotkey (`Ctrl+Shift+L`), toast notifications (start of the overlay, overlay shown again)
+- [x] Widget positions saved per game and resolution (`layout.toml`); a resolution without its own entry scales the closest stored one (e.g. fullscreen → windowed)
+- [x] Built-in demo widget (setting) to test the overlay without mods
+- **Acceptance:** a demo overlay over the native Linux client and over Hearthstone under Proton and on Windows, on KDE (Wayland + XWayland), GNOME (XWayland) and Sway. Clicks pass through to the game, and widgets can be dragged. *Status 2026-10-14: met for the native client on Cinnamon (X11), 174 MB PSS for core + overlay with the game running; Proton, Windows, KDE, GNOME and Sway still to be tested.*
+- Known Hearthstone behaviour, not caused by overLay: resizing the game window in windowed mode makes Hearthstone zoom its view (same with the overlay switched off).
 
 ### Phase 3: Mod SDK & runtime *(4–6 weeks)*
 - [ ] **`overlay.json` manifest** (modelled on Overwolf, but leaner):

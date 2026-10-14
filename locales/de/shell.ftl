@@ -37,8 +37,12 @@ settings-language-system = Systemsprache
 settings-general = Allgemein
 settings-autostart = { -app-name } beim Anmelden starten
 settings-start-minimized = Im Infobereich starten
+settings-overlay = Overlay
+settings-overlay-enabled = Overlay über laufenden Spielen anzeigen
+settings-overlay-demo = Demo-Widget anzeigen
 settings-hotkeys = Tastenkürzel
 settings-hotkey-launcher = Launcher ein- oder ausblenden
+settings-hotkey-overlay = Overlay ein- oder ausblenden
 settings-hotkey-hint = Tastenkürzel lassen sich vorerst in { $path } ändern.
 settings-save-failed = Die Einstellungen konnten nicht gespeichert werden: { $reason }
 

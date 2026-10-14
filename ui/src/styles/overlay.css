@@ -1,0 +1,29 @@
+/* The overlay page sits on top of the game: transparent everywhere except widgets. */
+html,
+body,
+#overlay {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--ol-text-primary);
+  font-family: var(--ol-font-sans);
+  font-size: var(--ol-font-size-md);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}

@@ -2,23 +2,28 @@
 # Measures memory (PSS) and CPU of a running program, including its WebKit helper
 # processes. PSS splits shared pages fairly between processes, so the sum is honest.
 #
-# Usage: tools/measure.sh <binary name> [seconds]   (seconds default 30)
+# Usage: tools/measure.sh <binary name | pid> [seconds]   (seconds default 30)
+# With a binary name, the first process running that executable is the root.
 set -euo pipefail
 export LC_ALL=C  # printf expects "." as decimal separator
 
-binary=${1:?usage: measure.sh <binary name> [seconds]}
+target=${1:?usage: measure.sh <binary name | pid> [seconds]}
 seconds=${2:-30}
 
 root=""
+if [[ "$target" =~ ^[0-9]+$ ]]; then
+  root=$target
+fi
 for exe in /proc/[0-9]*/exe; do
-  if [[ "$(readlink "$exe" 2>/dev/null)" == */"$binary" ]]; then
+  [[ -n "$root" ]] && break
+  if [[ "$(readlink "$exe" 2>/dev/null)" == */"$target" ]]; then
     root=${exe#/proc/}
     root=${root%/exe}
     break
   fi
 done
 if [[ -z "$root" ]]; then
-  echo "$binary is not running" >&2
+  echo "$target is not running" >&2
   exit 1
 fi
 

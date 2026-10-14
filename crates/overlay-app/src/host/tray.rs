@@ -6,8 +6,8 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Manager, Wry};
 
-use crate::state::AppState;
-use crate::window;
+use crate::host::launcher;
+use crate::host::state::AppState;
 
 const TRAY_ID: &str = "main";
 
@@ -27,7 +27,7 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id.as_ref() {
-            "open" => window::open(app),
+            "open" => launcher::open(app),
             "quit" => app.exit(0),
             _ => {}
         })
@@ -38,7 +38,7 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
                 ..
             } = event
             {
-                window::toggle(tray.app_handle());
+                launcher::toggle(tray.app_handle());
             }
         });
     if let Some(icon) = app.default_window_icon() {
@@ -70,12 +70,12 @@ pub fn refresh(app: &AppHandle) {
 }
 
 fn running_game_name(state: &AppState) -> Option<String> {
-    let running = state.running.lock().expect("running lock");
-    let first = running.first()?;
-    state
-        .catalog
-        .games()
-        .iter()
-        .find(|g| g.id == first.game_id)
-        .map(|g| g.name.clone())
+    let game_id = state
+        .running
+        .lock()
+        .expect("running lock")
+        .first()?
+        .game_id
+        .clone();
+    state.game_name(&game_id)
 }

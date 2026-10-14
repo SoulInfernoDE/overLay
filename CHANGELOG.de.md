@@ -13,6 +13,9 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- Overlay im Spiel (Phase 2): ein transparentes, durchklickbares Fenster pro laufendem Spiel, das dem Spielfenster über X11-Ereignisse folgt, nur bei aktivem Spiel sichtbar ist, nie den Fokus nimmt und sich mit `Strg+Umschalt+L` ein- und ausblenden lässt; Hinweis-Einblendungen; ein Demo-Widget, dessen Position pro Spiel und Auflösung gespeichert wird
+- Prozessmodell: Der Kern läuft ohne WebView, Launcher und Overlay sind Kindprozesse, die über stdin/stdout mit ihm sprechen (`overlay-ipc`); nach dem Schließen des Launchers braucht der Kern wieder 27 MB PSS
+- `OVERLAY_DEBUG=1` protokolliert jede Änderung des Spielfensters
 - Host-App (`overlay-app`, Tauri 2): Tray-Symbol mit übersetztem Menü, Launcher-Fenster bei Bedarf, nur eine Instanz, globales Tastenkürzel `Strg+Umschalt+O`, optionaler Autostart; 27 MB PSS beim Start im Infobereich
 - Spieleerkennung (`overlay-games`) für den nativen Linux-Client, Wine/Proton und Windows, gesteuert über den Spielekatalog in `games/`
 - Persistente Einstellungen (`overlay-settings`): Sprache, Start im Infobereich, Autostart, Tastenkürzel

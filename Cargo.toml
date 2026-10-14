@@ -12,7 +12,7 @@ authors = ["overLay contributors"]
 
 [workspace.dependencies]
 fluent-bundle = "0.16"
-fluent-langneg = "0.13"  # must match the version fluent-bundle uses (unic-langid based)
+fluent-langneg = "0.14"  # must match the version fluent-bundle uses (unic-langid based)
 fluent-syntax = "0.12"
 thiserror = "2"
 unic-langid = "0.9"

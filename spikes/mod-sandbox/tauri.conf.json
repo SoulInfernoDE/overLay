@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "mod-sandbox-spike",
+  "version": "0.0.0",
+  "identifier": "io.github.soulinfernode.overlay.modspike",
+  "build": { "frontendDist": "ui" },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "host",
+        "title": "mod sandbox spike",
+        "url": "index.html",
+        "width": 600,
+        "height": 400
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; frame-src mod: http://mod.localhost; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.png"] }
+}

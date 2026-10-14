@@ -1,0 +1,23 @@
+[package]
+name = "overlay-i18n"
+description = "Fluent-based localization for the overLay host and its mods"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+fluent-bundle.workspace = true
+fluent-langneg.workspace = true
+fluent-syntax.workspace = true
+thiserror.workspace = true
+unic-langid.workspace = true
+
+[dev-dependencies]
+unic-langid = { workspace = true, features = ["macros"] }
+
+[lints]
+workspace = true

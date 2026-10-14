@@ -58,6 +58,7 @@ enum TrackState {
         flavor: &'static str,
         bounds: Bounds,
         hidden: bool,
+        active: bool,
     },
 }
 
@@ -98,38 +99,53 @@ fn track_state(current: tauri::State<'_, CurrentState>) -> TrackState {
 }
 
 /// Restricts mouse input to `rects`; everything else passes through to the game.
+///
+/// `device_pixel_ratio` is the page's `window.devicePixelRatio`. CSS pixels are scaled by
+/// it (e.g. 1.2 at 115 dpi), while the input shape is set in GDK units, so the rectangles
+/// must be converted or the clickable area drifts away from the visible widgets.
 #[tauri::command]
-fn set_interactive_regions(window: WebviewWindow, rects: Vec<Rect>) -> Result<(), String> {
+fn set_interactive_regions(
+    window: WebviewWindow,
+    rects: Vec<Rect>,
+    device_pixel_ratio: f64,
+) -> Result<(), String> {
     let target = window.clone();
     window
-        .run_on_main_thread(move || apply_input_shape(&target, &rects))
+        .run_on_main_thread(move || apply_input_shape(&target, &rects, device_pixel_ratio))
         .map_err(|e| e.to_string())
 }
 
 #[cfg(target_os = "linux")]
-fn apply_input_shape(window: &WebviewWindow, rects: &[Rect]) {
+fn apply_input_shape(window: &WebviewWindow, rects: &[Rect], device_pixel_ratio: f64) {
     use gtk::cairo::{RectangleInt, Region};
     use gtk::prelude::*;
 
     let Ok(gtk_window) = window.gtk_window() else {
         return;
     };
+    // CSS pixels -> device pixels -> GDK units (GDK scale is an integer, usually 1).
+    let factor = device_pixel_ratio / f64::from(gtk_window.scale_factor().max(1));
     let rects: Vec<RectangleInt> = rects
         .iter()
         .map(|r| {
+            let left = (r.x * factor).floor();
+            let top = (r.y * factor).floor();
+            let right = ((r.x + r.width) * factor).ceil();
+            let bottom = ((r.y + r.height) * factor).ceil();
             RectangleInt::new(
-                r.x.floor() as i32,
-                r.y.floor() as i32,
-                r.width.ceil() as i32,
-                r.height.ceil() as i32,
+                left as i32,
+                top as i32,
+                (right - left) as i32,
+                (bottom - top) as i32,
             )
         })
         .collect();
+    eprintln!("[spike] input shape (factor {factor:.3}): {rects:?}");
     gtk_window.input_shape_combine_region(Some(&Region::create_rectangles(&rects)));
 }
 
 #[cfg(not(target_os = "linux"))]
-fn apply_input_shape(_window: &WebviewWindow, _rects: &[Rect]) {}
+fn apply_input_shape(_window: &WebviewWindow, _rects: &[Rect], _device_pixel_ratio: f64) {}
 
 /// Click-through from the start, and override-redirect if requested. Must run before
 /// the window is mapped for the first time.
@@ -138,13 +154,16 @@ fn prepare_window(window: &WebviewWindow, stacking: Stacking) -> tauri::Result<(
     use gtk::prelude::*;
 
     let gtk_window = window.gtk_window()?;
+    // An overlay must never take focus from the game, or the game swallows the next click.
+    gtk_window.set_accept_focus(false);
+    gtk_window.set_focus_on_map(false);
     gtk_window.realize();
     if stacking == Stacking::Override
         && let Some(gdk_window) = gtk_window.window()
     {
         gdk_window.set_override_redirect(true);
     }
-    apply_input_shape(window, &[]);
+    apply_input_shape(window, &[], 1.0);
     Ok(())
 }
 
@@ -210,12 +229,17 @@ fn poll(
         Ok(Some(window)) => window,
         _ => return TrackState::Searching,
     };
-    match (tracker.bounds(window), tracker.is_hidden(window)) {
-        (Ok(bounds), Ok(hidden)) => TrackState::Tracking {
+    match (
+        tracker.bounds(window),
+        tracker.is_hidden(window),
+        tracker.is_active(window),
+    ) {
+        (Ok(bounds), Ok(hidden), Ok(active)) => TrackState::Tracking {
             pid: process.pid,
             flavor: process.flavor,
             bounds,
             hidden,
+            active,
         },
         _ => TrackState::Searching,
     }

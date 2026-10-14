@@ -26,12 +26,28 @@ Transparency and rendering work in the default stacking mode (`override`), and t
 4. **Idle CPU is negligible** (≤ 0.2 % of one core, polling every 250 ms included).
 5. **The 150 MB budget** from the roadmap is only reachable with compositing off. Realistic target for the host with one overlay: 140–170 MB, plus nothing when no game runs (tray-only mode without webview).
 
-## Still open (needs the game)
+## With the game: native client (hearthstone-linux-gui)
 
-- [ ] Overlay over the native client (hearthstone-linux-gui): follows the window, windowed and fullscreen, both stacking modes
-- [ ] Click-through to the game outside the widget, no clicks through the widget
-- [ ] Overlay hides while the game is minimised
-- [ ] RAM/CPU while the game runs
-- [ ] Native client reads `~/Library/Preferences/Blizzard/Hearthstone/log.config` and writes `Power.log`
-- [ ] Same checks under Proton/Wine (Lutris installation)
+Hearthstone 37.0 on Unity 6000.3, windowed 1920×1080 at the top left of the 4K screen, stacking mode `override`, compositing mode off.
+
+| Check | Result |
+|---|---|
+| Overlay appears when the game starts and follows its window | ✓ |
+| Hides while the game is minimised, returns at the same place | ✓ |
+| Clicks outside the widget reach the game (end-turn button, hover and click) | ✓ after fix 1 |
+| Widget can be collapsed and dragged, the game does not get these clicks | ✓ |
+| Stutter | none noticed |
+| RAM / CPU with the game running | 146 MB PSS / 0.5 % of one core |
+| `~/Library/Preferences/Blizzard/Hearthstone/log.config` is read, `Power.log` is written | ✓ (`<game_dir>/Logs/Hearthstone_<timestamp>/`) |
+
+**Bugs found and fixed:**
+
+1. **Clickable area offset.** The page reported widget rectangles in CSS pixels, but the GTK input shape expects GDK units. At 115 dpi WebKit scales CSS pixels by 1.2, so the clickable area sat about 20 % further up and to the left than the visible widget, right over the end-turn button: the game cursor turned into the system cursor and the button got neither hover nor clicks. Fix: the page sends `devicePixelRatio`, and the host converts with `devicePixelRatio / GDK scale`.
+2. **Focus.** The overlay window now refuses keyboard focus (`accept_focus = false`, `focus_on_map = false`), so clicking a widget cannot take focus away from the game. This was a precaution; the reported problem was fully explained by bug 1.
+
+## Still open
+
+- [ ] Fullscreen mode of the game and stacking mode `above`
+- [ ] Proton/Wine (Lutris installation)
+- [ ] Native Wayland session (KDE, GNOME → XWayland), Sway
 - [ ] Windows

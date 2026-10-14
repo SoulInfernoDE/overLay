@@ -85,7 +85,7 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 ### Phase 2: Overlay engine *(4–6 weeks)*
 - [x] **Process model:** the core (tray, detection, settings, hotkeys) loads no webview; the launcher and the overlay are child processes of the same executable (`--ui launcher`, `--ui overlay`) that talk to the core over stdin/stdout (`crates/overlay-ipc`, JSON lines) and exit when they are no longer needed. Closing the launcher brings the core back to 27 MB PSS (was 81 MB)
 - [x] **One overlay window** per running game for all widgets: transparent, borderless, on top, never takes focus, **click-through per region** (widgets take input, everything else goes to the game; regions converted by the device pixel ratio)
-- [x] Follows the game window: X11 through events (`ConfigureNotify`, property changes, no polling), Windows by polling every 50 ms; visible only while the game is shown and active
+- [x] Follows the game window: X11 through events (`ConfigureNotify`, property changes, no polling), Windows by polling every 50 ms; visible while the game is shown and no other active window covers it (so working on another monitor keeps the overlay)
 - [ ] Backends:
   - [x] **X11/XWayland** (GTK input shape, `above` or override-redirect stacking). The default under Proton and for the native Hearthstone client, which both run on X11/XWayland; tested on Cinnamon
   - [ ] Windows (always on top, cursor-driven click-through): implemented and compiled in CI, **not yet tested on Windows**
@@ -98,27 +98,18 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 - Known Hearthstone behaviour, not caused by overLay: resizing the game window in windowed mode makes Hearthstone zoom its view (same with the overlay switched off).
 
 ### Phase 3: Mod SDK & runtime *(4–6 weeks)*
-- [ ] **`overlay.json` manifest** (modelled on Overwolf, but leaner):
-  ```jsonc
-  {
-    "id": "io.github.<author>.<mod>", "version": "1.2.0",
-    "name": "@i18n:name", "license": "GPL-3.0-or-later",
-    "source": "https://github.com/<author>/<mod>",
-    "games": [{ "id": "hearthstone", "providers": ["hearthstone@^1"] }],
-    "permissions": ["game.events", "game.state", "storage.local", "hotkeys", "notifications"],
-    "network": ["api.hearthstonejson.com", "art.hearthstonejson.com"],
-    "windows": { "main": { "kind": "desktop" }, "tracker": { "kind": "overlay", "clickthrough": "auto" } },
-    "hotkeys": { "toggle-tracker": { "default": "Ctrl+Shift+D" } },
-    "locales": "locales/"
-  }
-  ```
-- [ ] JS API `overlay.*`: `games` (launch/exit), `events` (`onEvent`, `onInfo`, `getInfo`, `requireFeatures`), `windows` (open, move, click-through, opacity), `storage` (key-value + per-mod SQLite), `hotkeys`, `notifications`, `i18n`, `settings` (schema → generated settings page)
-- [ ] **Sandbox**: one WebView per mod window, strict CSP, **network allowlist enforced in the host** (requests to undeclared domains are blocked and logged), no Node, no file system access
-- [ ] Message bus between a mod's windows (replaces Overwolf's background controller)
-- [ ] **Developer mode**: load a mod from a local folder, hot reload, DevTools, **event recorder/player** (record and replay game sessions, which matters for testing without a running game)
-- [ ] SDK package (`@overlay/sdk`) with TypeScript types, `create-overlay-mod` template
+- [x] **`overlay.json` manifest** (`crates/overlay-mods`), strictly validated: reverse-DNS id, semver, SPDX license, https source, `games`, `permissions` (`game.state`, `game.events`, `storage`, `notifications`, `hotkeys`), `network` (plain host names), overlay and desktop `windows`, `hotkeys`, `settings` schema. Reference: [docs/mod-development.md](docs/mod-development.md)
+- [x] **Sandbox** (verified in [spikes/mod-sandbox](spikes/mod-sandbox/RESULTS.md)): mod windows are sandboxed frames inside the one overlay webview (and the launcher), served by the host over `mod://`; per-mod CSP from the manifest, so the **webview enforces the network allowlist** and reports blocked requests to the host, which logs them; no `eval`, no access to overLay's pages, files only from the mod's own folder (also through symlinks)
+- [x] SDK package `@overlay/sdk` (`sdk/`, TypeScript): `ready`, `i18n` (the mod's own Fluent catalogs), `storage` (JSON key-value, 1 MB), `notifications`, `bus` (between a mod's windows, across processes), `hotkeys` (declared in the manifest, registered by the core), `settings` (generated settings page in the launcher), `game` (state and window size), `events` (prepared for phase 5), `windows` (drag, clickable regions, click-through). Every call is permission-checked in the core
+- [x] **Developer mode**: load mods from local folders, reload, load errors in the settings, `OVERLAY_DEBUG=1` logs mod requests and game window changes
+- [x] Example mod [`mods/hello-overlay`](mods/hello-overlay) (EN/DE)
+- [x] Launcher: mods in the library (on/off), mod page with description, permissions, network hosts, generated settings and the mod's desktop window
+- [ ] Event recorder/player (record and replay game sessions) – needs game events, moves to phase 5
+- [ ] `create-overlay-mod` template
+- [ ] Per-mod SQLite storage (key-value storage is enough for now)
+- [ ] Automatic reload when a developer folder changes (now: *Reload mods* button)
 - [ ] *(optional)* compatibility layer for parts of the Overwolf API, so open Overwolf apps are easier to port
-- **Acceptance:** the "Hello Overlay" example mod runs with a locale catalog. A request to an undeclared domain is shown to be blocked.
+- **Acceptance:** the "Hello Overlay" example mod runs with a locale catalog. A request to an undeclared domain is shown to be blocked. *Status 2026-10-15: met on Linux (X11) over the native Hearthstone client; the blocked request to example.com was reported and logged.*
 
 ### Phase 4: Mod repository & secure updates *(3–4 weeks)*
 - [ ] Separate repo **`overlay-mods-index`**: one file per mod (`mods/<id>.toml`) with source repo, releases (git tag + commit hash), artifact URL, **SHA-256**, permissions, domains, license

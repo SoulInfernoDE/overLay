@@ -19,7 +19,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 - **Auch eigene Repos.** Neben dem offiziellen Index kannst du eigene Mod-Repositories per URL und öffentlichem Schlüssel hinzufügen.
 - **Leichtgewichtig.** Nativer Rust-Kern mit der System-WebView, keine mitgelieferte Browser-Engine und keine Code-Injektion in Spiele.
 
-> **Status: Pre-Alpha (Phase 0).** Noch nichts ist benutzbar. Siehe [Fahrplan](ROADMAP.de.md).
+> **Status: Pre-Alpha.** Host-App, Overlay im Spiel und Mod-SDK funktionieren unter Linux (X11); noch kein Mod-Repository. Siehe [Fahrplan](ROADMAP.de.md).
 
 ## Erster Mod: Flint
 
@@ -31,11 +31,11 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 | Pfad | Inhalt |
 |---|---|
-| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App: Kern-, Launcher- und Overlay-Prozess), `overlay-ipc`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
+| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App: Kern-, Launcher- und Overlay-Prozess), `overlay-ipc`, `overlay-mods`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
 | `ui/` | Launcher-Oberfläche (Svelte 5, TypeScript, Vite) |
 | `locales/` | Fluent-Kataloge des Hosts, gemeinsam für Rust und UI (`en` als Basis, `de`) |
-| `sdk/` | Mod-SDK und TypeScript-Typen (Phase 3) |
-| `mods/` | Beispiel-Mods (Phase 3) |
+| `sdk/` | Mod-SDK `@overlay/sdk` ([Mods schreiben](docs/mod-development.de.md)) |
+| `mods/` | Beispiel-Mods (`hello-overlay`) |
 | `assets/branding/` | Logos von overLay und Flint ([Details](assets/branding/README.de.md)) |
 | `games/` | Spielekatalog: welche Prozesse zu welchem Spiel gehören |
 | `tools/` | Skripte für das Repository (Logo-Generator, `measure.sh` für RAM/CPU) |
@@ -90,6 +90,7 @@ npm run format:check && npm run check && npm run build && npm run licenses && ca
 
 - [Fahrplan](ROADMAP.de.md)
 - [Recherche: Overwolf, CurseForge, Firestone](docs/research.de.md)
+- [Mods schreiben](docs/mod-development.de.md)
 - [Mod-Richtlinie](MOD_POLICY.de.md)
 - [Mitwirken](CONTRIBUTING.de.md) · [Verhaltenskodex](CODE_OF_CONDUCT.de.md) · [Sicherheit](SECURITY.de.md)
 - [Änderungsprotokoll](CHANGELOG.de.md)

@@ -7,8 +7,8 @@ use std::time::Duration;
 use windows_sys::Win32::Foundation::{HWND, LPARAM, POINT, RECT};
 use windows_sys::Win32::Graphics::Gdi::ClientToScreen;
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GetClientRect, GetForegroundWindow, GetWindowThreadProcessId, IsIconic,
-    IsWindowVisible,
+    EnumWindows, GetClientRect, GetForegroundWindow, GetWindowRect, GetWindowThreadProcessId,
+    IsIconic, IsWindowVisible,
 };
 
 use super::GameWindow;
@@ -82,15 +82,27 @@ fn read_state(hwnd: HWND, pid: u32) -> GameWindow {
         let foreground = GetForegroundWindow();
         let mut foreground_pid = 0u32;
         GetWindowThreadProcessId(foreground, &mut foreground_pid);
+        let width = (rect.right - rect.left).max(0);
+        let height = (rect.bottom - rect.top).max(0);
+        let active =
+            foreground == hwnd || foreground_pid == pid || foreground_pid == std::process::id();
+        // With several monitors, another window can be active without hiding the game.
+        let mut other: RECT = std::mem::zeroed();
+        let covered = !active
+            && !foreground.is_null()
+            && GetWindowRect(foreground, &mut other) != 0
+            && other.left < origin.x + width
+            && origin.x < other.right
+            && other.top < origin.y + height
+            && origin.y < other.bottom;
         GameWindow {
             x: origin.x,
             y: origin.y,
-            width: (rect.right - rect.left).max(0) as u32,
-            height: (rect.bottom - rect.top).max(0) as u32,
+            width: width as u32,
+            height: height as u32,
             hidden: IsIconic(hwnd) != 0,
-            active: foreground == hwnd
-                || foreground_pid == pid
-                || foreground_pid == std::process::id(),
+            active,
+            covered,
         }
     }
 }

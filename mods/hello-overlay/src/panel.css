@@ -1,0 +1,74 @@
+html,
+body {
+  margin: 0;
+  background: transparent;
+  color: #e8ebf0;
+  font:
+    13px/1.4 'Inter',
+    'Segoe UI',
+    'Noto Sans',
+    system-ui,
+    sans-serif;
+  user-select: none;
+}
+
+.panel {
+  border: 1px solid #2a303b;
+  border-radius: 8px;
+  background: rgb(21 24 30 / 0.92);
+  overflow: hidden;
+}
+
+.handle {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #2a303b;
+  color: #2ed3b7;
+  font-weight: 600;
+  cursor: grab;
+}
+
+.panel.compact .handle {
+  border-bottom: none;
+}
+
+.hint {
+  color: #6b7383;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.body {
+  padding: 8px 10px;
+}
+
+.body p {
+  margin: 0 0 6px;
+}
+
+.muted {
+  color: #9aa3b2;
+  font-size: 12px;
+}
+
+.buttons {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+button {
+  padding: 2px 8px;
+  border: 1px solid #2a303b;
+  border-radius: 4px;
+  background: #252a34;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #2ed3b7;
+}

@@ -5,8 +5,9 @@
 //! - the window never takes focus, or the game swallows the next click;
 //! - clickable regions arrive in CSS pixels and are converted by the device pixel ratio.
 //!
-//! The overlay is visible only while the game window is shown and active (or the overlay
-//! itself was clicked) and the user has not hidden it with the hotkey.
+//! The overlay is visible while the game window is shown and no other active window
+//! covers it (with several monitors, working on another one keeps the overlay), and the
+//! user has not hidden it with the hotkey.
 
 mod input;
 #[cfg(windows)]
@@ -25,6 +26,7 @@ use tauri::{
     WebviewWindowBuilder,
 };
 
+use super::mods::{self, ModMap};
 use super::{CoreClient, listen_to_core};
 
 const WINDOW: &str = "overlay";
@@ -40,6 +42,9 @@ pub struct GameWindow {
     pub hidden: bool,
     /// The game (or the overlay itself) has the focus.
     pub active: bool,
+    /// Another, active window overlaps the game (on multi-monitor setups the active
+    /// window is often elsewhere, and the overlay stays).
+    pub covered: bool,
 }
 
 #[derive(Clone, Debug, Default, Serialize)]
@@ -66,12 +71,14 @@ pub fn run() {
     let state = OverlayState::default();
     *state.stacking.lock().expect("stacking lock") = stacking;
 
-    tauri::Builder::default()
+    mods::register(tauri::Builder::default())
         .manage(Arc::clone(&client))
+        .manage(ModMap::default())
         .manage(state)
         .manage(input::Regions::default())
         .invoke_handler(tauri::generate_handler![
             crate::ui::core_request,
+            crate::ui::mods::mod_base_url,
             overlay_status,
             input::set_interactive_regions
         ])
@@ -132,6 +139,19 @@ fn on_message(app: &AppHandle, message: CoreMessage) {
         CoreMessage::GamesChanged { games } => {
             let _ = app.emit("games-changed", games);
         }
+        CoreMessage::ModsChanged { list } => {
+            app.state::<ModMap>().update(&list);
+            let _ = app.emit("mods-changed", list);
+        }
+        message @ CoreMessage::ModEvent { .. } => {
+            let _ = app.emit("mod-event", message);
+        }
+        CoreMessage::Toast { text, source } => {
+            let _ = app.emit(
+                "toast",
+                serde_json::json!({ "text": text, "source": source }),
+            );
+        }
         CoreMessage::Close => app.exit(0),
         CoreMessage::Response { .. } | CoreMessage::Focus => {}
     }
@@ -180,7 +200,7 @@ fn apply(app: &AppHandle) {
     let status = overlay.status.lock().expect("status lock").clone();
     let game = status
         .window
-        .filter(|w| !w.hidden && w.active && !status.user_hidden);
+        .filter(|w| !w.hidden && (w.active || !w.covered) && !status.user_hidden);
     let _ = app.emit("overlay-visible", game.is_some());
     match game {
         Some(game) => {

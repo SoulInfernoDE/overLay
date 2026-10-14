@@ -19,7 +19,7 @@ The launcher is inspired by the dock-based look of popular overlay platforms, bu
 - **Your repos too.** Besides the official index you can add your own mod repositories by URL and public key.
 - **Lightweight.** A native Rust core with the system WebView, no bundled browser engine, and no code injection into games.
 
-> **Status: pre-alpha (phase 0).** Nothing is usable yet. See the [roadmap](ROADMAP.md).
+> **Status: pre-alpha.** Host app, in-game overlay and mod SDK work on Linux (X11); no mod repository yet. See the [roadmap](ROADMAP.md).
 
 ## First mod: Flint
 
@@ -31,11 +31,11 @@ The launcher is inspired by the dock-based look of popular overlay platforms, bu
 
 | Path | Contents |
 |---|---|
-| `crates/` | Rust crates of the host: `overlay-app` (Tauri app: core, launcher and overlay processes), `overlay-ipc`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
+| `crates/` | Rust crates of the host: `overlay-app` (Tauri app: core, launcher and overlay processes), `overlay-ipc`, `overlay-mods`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
 | `ui/` | Launcher UI (Svelte 5, TypeScript, Vite) |
 | `locales/` | Fluent catalogs of the host, shared by Rust and UI (`en` base, `de`) |
-| `sdk/` | Mod SDK and TypeScript types (phase 3) |
-| `mods/` | Example mods (phase 3) |
+| `sdk/` | Mod SDK `@overlay/sdk` ([how to write mods](docs/mod-development.md)) |
+| `mods/` | Example mods (`hello-overlay`) |
 | `assets/branding/` | Logos of overLay and Flint ([details](assets/branding/README.md)) |
 | `games/` | Game catalog: which processes belong to which game |
 | `tools/` | Repository scripts (logo generator, `measure.sh` for RAM/CPU) |
@@ -90,6 +90,7 @@ npm run format:check && npm run check && npm run build && npm run licenses && ca
 
 - [Roadmap](ROADMAP.md)
 - [Research: Overwolf, CurseForge, Firestone](docs/research.md)
+- [Writing mods](docs/mod-development.md)
 - [Mod policy](MOD_POLICY.md)
 - [Contributing](CONTRIBUTING.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md)
 - [Changelog](CHANGELOG.md)

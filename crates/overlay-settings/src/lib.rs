@@ -18,7 +18,7 @@ pub trait StoredFile: Default + Serialize + DeserializeOwned {
     const FILE_NAME: &'static str;
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
     /// UI language (BCP 47, e.g. `de`); `None` follows the system language.
@@ -49,16 +49,30 @@ pub struct DeveloperSettings {
     pub mod_paths: Vec<PathBuf>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ModPreferences {
     pub enabled: bool,
+    /// Values of the mod's own settings (declared in its manifest), by setting id.
+    pub values: BTreeMap<String, SettingValue>,
 }
 
 impl Default for ModPreferences {
     fn default() -> Self {
-        Self { enabled: true }
+        Self {
+            enabled: true,
+            values: BTreeMap::new(),
+        }
     }
+}
+
+/// A value of a mod setting.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum SettingValue {
+    Bool(bool),
+    Number(f64),
+    Text(String),
 }
 
 impl StoredFile for Settings {
@@ -308,7 +322,13 @@ mod tests {
                 enabled: true,
                 mod_paths: vec![PathBuf::from("/home/me/my-mod")],
             },
-            mods: BTreeMap::from([("org.example.x".into(), ModPreferences { enabled: false })]),
+            mods: BTreeMap::from([(
+                "org.example.x".into(),
+                ModPreferences {
+                    enabled: false,
+                    values: BTreeMap::from([("size".into(), SettingValue::Text("large".into()))]),
+                },
+            )]),
         };
         store.save(&settings).unwrap();
         let (loaded, error) = store.load();
@@ -382,9 +402,13 @@ mod tests {
     fn mods_are_enabled_unless_switched_off() {
         let mut settings = Settings::default();
         assert!(settings.mod_enabled("org.example.x"));
-        settings
-            .mods
-            .insert("org.example.x".into(), ModPreferences { enabled: false });
+        settings.mods.insert(
+            "org.example.x".into(),
+            ModPreferences {
+                enabled: false,
+                ..ModPreferences::default()
+            },
+        );
         assert!(!settings.mod_enabled("org.example.x"));
     }
 }

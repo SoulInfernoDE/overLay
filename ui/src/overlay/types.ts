@@ -14,6 +14,8 @@ export interface GameWindow {
   height: number;
   hidden: boolean;
   active: boolean;
+  /** Another active window overlaps the game. */
+  covered: boolean;
 }
 
 export interface OverlayStatus {

@@ -72,7 +72,11 @@
       <p>{t('overlay-demo-body')}</p>
       {#if gameWindow}
         <p class="muted">
-          {t('overlay-demo-window', { width: gameWindow.width, height: gameWindow.height })}
+          {t('overlay-demo-window', {
+            // Plain text: resolutions are never written with digit grouping.
+            width: String(gameWindow.width),
+            height: String(gameWindow.height),
+          })}
         </p>
       {/if}
     </div>

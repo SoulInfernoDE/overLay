@@ -1,0 +1,16 @@
+{
+  "name": "hello-overlay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example overLay mod: translations, storage, notifications, hotkeys, settings and the network allowlist",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vite": "8.3.4"
+  }
+}

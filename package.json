@@ -4,7 +4,9 @@
   "license": "GPL-3.0-or-later",
   "type": "module",
   "workspaces": [
-    "ui"
+    "ui",
+    "sdk",
+    "mods/*"
   ],
   "engines": {
     "node": ">=24"
@@ -12,12 +14,13 @@
   "scripts": {
     "dev": "npm run dev -w ui",
     "build": "npm run build -w ui",
-    "check": "npm run check -w ui",
+    "check": "npm run check -w ui && npm run check -w sdk && npm run check -w mods/hello-overlay",
     "app:dev": "cd crates/overlay-app && tauri dev",
     "app:build": "cd crates/overlay-app && tauri build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "licenses": "node tools/check-npm-licenses.mjs"
+    "licenses": "node tools/check-npm-licenses.mjs",
+    "build:mods": "npm run build -w mods/hello-overlay"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.12.2",

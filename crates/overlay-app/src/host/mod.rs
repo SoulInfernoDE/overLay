@@ -5,6 +5,7 @@ mod children;
 mod detection;
 mod hotkeys;
 mod launcher;
+mod mods;
 mod overlay;
 mod requests;
 mod state;
@@ -55,6 +56,8 @@ pub fn run() {
         .manage(state)
         .manage(UiProcesses::default())
         .manage(overlay::CurrentTarget::default())
+        .manage(mods::ModRegistry::new())
+        .manage(hotkeys::Registered::default())
         .setup(move |app| {
             let handle = app.handle();
             tray::create(handle)?;
@@ -62,7 +65,8 @@ pub fn run() {
             if let Err(err) = requests::apply_autostart(handle, settings.autostart) {
                 eprintln!("[overlay] cannot update the autostart entry: {err}");
             }
-            hotkeys::register(handle, &settings.hotkeys);
+            handle.state::<mods::ModRegistry>().reload(&settings);
+            hotkeys::register_all(handle);
             detection::spawn(handle.clone());
             if !start_hidden {
                 launcher::open(handle);

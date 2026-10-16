@@ -10,5 +10,9 @@
   },
   "scripts": {
     "check": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@fluent/bundle": "0.19.1",
+    "@fluent/langneg": "0.7.0"
   }
 }

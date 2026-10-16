@@ -252,14 +252,21 @@ pub fn call(app: &AppHandle, mod_id: &str, call: ModCall) -> Result<serde_json::
         ModCall::Notify { text } => {
             require(Permission::Notifications)?;
             let text: String = text.chars().take(TOAST_LIMIT).collect();
-            app.state::<UiProcesses>().send(
-                overlay_ipc::UiRole::Overlay,
-                &CoreMessage::Toast {
+            crate::host::toasts::push(
+                app,
+                overlay_ipc::Toast {
                     text,
                     source: Some(info.manifest.name.clone()),
                 },
             );
             Ok(serde_json::Value::Null)
+        }
+        ModCall::GameInfo => {
+            require(Permission::GameEvents)?;
+            Ok(app
+                .state::<crate::host::providers::Providers>()
+                .info()
+                .unwrap_or(serde_json::Value::Null))
         }
         ModCall::BusPost { message } => {
             app.state::<UiProcesses>()

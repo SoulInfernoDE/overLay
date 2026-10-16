@@ -126,29 +126,30 @@ Each phase ends with a working, releasable state. Time estimates are rough and a
 - **Acceptance:** a mod can be installed, updated and rolled back through the index. A tampered artifact is rejected, and so is an index with a wrong signature.
 
 ### Phase 5: Hearthstone game provider *(6–8 weeks)*
-- [ ] **Install finder**, in this order:
-  1. **native Linux client**: hearthstone-linux-gui (`game_dir` from `$XDG_CONFIG_HOME/hearthstone-linux-gui/config.toml`, otherwise `$XDG_DATA_HOME/hearthstone-linux-gui/game`), the original hearthstone-linux (user-chosen folder), or a running `Hearthstone.x86_64` (its working directory)
-  2. Wine/Proton prefixes: Steam `compatdata`, Lutris, Bottles, Heroic, Faugus
-  3. Windows: registry/Battle.net config
-  4. a user-chosen path
-- [ ] Create or extend `log.config` automatically (Power, Zone, LoadingScreen, Arena, Decks, Achievements …). Native client: `~/Library/Preferences/Blizzard/Hearthstone/log.config` (confirmed in the spike); logs then appear in `<game_dir>/Logs/Hearthstone_<timestamp>/`; Wine: inside the prefix
-- [ ] Handle Hearthstone's log size cap (logs are truncated at about 10 MB) and log rotation without losing the game state
-- [ ] **Power.log parser in Rust** (references: python-hslog, HSTracker, both MIT): entities, tags, blocks, zone changes → game state and events (`game-start`, `mulligan`, `card-drawn`, `card-played`, `turn-start`, `game-end` …)
-- [ ] Game mode detection (Ranked/Casual, Arena, BG, Brawl, Mercs, Solo)
-- [ ] Card database: download HearthstoneJSON, cache it, refresh on a new patch. Card images are loaded **at runtime only** (Blizzard IP).
+`crates/overlay-hearthstone`, run by the core while the game runs.
+- [x] **Install finder** for the running game: native Linux client (working directory or `Bin/` parent), Wine/Proton (`WINEPREFIX` or `STEAM_COMPAT_DATA_PATH`, working directory or the Windows path of the executable), Windows (executable path). Verified at runtime for the native client; Wine/Proton and Windows are implemented, still to be tested
+- [ ] Install finder without a running game (launcher config, Steam `compatdata`, Lutris, Bottles, Heroic, Faugus, user-chosen path), e.g. to prepare `log.config` before the first start
+- [x] `log.config` is created or extended automatically (`Power` with `Verbose`, `LoadingScreen`, `Decks`, `Arena`), user settings are kept; when it changed, a toast asks for one restart of the game (toasts now wait in the core until the overlay shows them)
+- [x] Log size cap and rotation: truncated logs are read again from the start, a new `Logs/Hearthstone_<timestamp>/` folder is followed automatically
+- [x] **Power.log parser in Rust** (own implementation on the `GameState` stream): entity model with all tags, player-name resolution that never guesses in games with more than two players, events `game-start`, `mulligan`, `turn-start`, `zone-change`, `card-revealed`, `game-end`, and a game summary (`game-info`) for mods that start mid-game. SDK: `overlay.events.on`, `getInfo`, `onInfo` with TypeScript types
+- [x] Game mode from the game header (`GameType`, `FormatType`, `ScenarioID`): Ranked/Casual, Arena, Battlegrounds, Brawl, Solo …
+- [x] Cost: 0.5 % CPU idle, events every 100 ms while the game writes; the first read of a long Battlegrounds game takes a moment
+- [ ] Deck list at game start (`Decks.log`), for the constructed deck tracker
+- Card database: **not in the host**. Mods load card data themselves from the hosts they declare (e.g. HearthstoneJSON), so the user sees and approves that network access; card images only at runtime (Blizzard IP)
 - [ ] *(optional, opt-in)* **memory reader** based on the ideas of UnitySpy (MIT, our own Rust port with attribution): collection, active deck, arena draft, BG lobby, quests, achievements. Native client first: a plain ELF process with `libmonobdwgc-2.0.so`, so no Wine address translation is needed. Wine/Proton via `/proc/<pid>/mem` as the second step.
-- [ ] Event recordings of real games as test fixtures (recorder from phase 3)
-- **Acceptance:** for 50 recorded games (all modes, recorded mainly on the native Linux client), the provider produces a game state that matches the final state in the log.
+- [ ] Event recorder/player for mod development without a running game
+- **Acceptance:** for 50 recorded games (all modes, recorded mainly on the native Linux client), the provider produces a game state that matches the final state in the log. *Status 2026-10-16: unit tests with a hand-written game; real games checked locally with `cargo run -p overlay-hearthstone --example replay -- <Power.log>` (a game against the AI and a Battlegrounds game, sides, heroes and zones correct) and live in a Battlegrounds game. Real logs stay local because they contain account data; the set grows with every game played.*
 
-### Phase 6: Flint MVP: deck tracker *(6–8 weeks)*
-Flint gets its own repository and is installed through the index, so the very first mod goes through the full pipeline. Its look follows Firestone, with original assets.
+### Phase 6: Flint MVP: Battlegrounds first, then the deck tracker *(6–8 weeks)*
+Flint gets its own repository and is installed through the index, so the very first mod goes through the full pipeline. Its look follows Firestone, with original assets. **Battlegrounds has priority** (decided 2026-10-16) and must work without errors.
+- [ ] **Battlegrounds overlay:** tavern tier and gold, own board, heroes of the lobby with health and placement (leaderboard), the last opponent's board, available and banned tribes, minion list by tier, tribe and mechanic (card data from HearthstoneJSON), session recap (games, placements)
 - [ ] **Own deck** overlay: card tiles (art crop, mana cost, count, rarity), drawn cards greyed out, remaining cards, draw probabilities
 - [ ] **Opponent** overlay: played cards, hand with draw turn, buffs and known cards
 - [ ] **Secrets helper**, counters (total attack, fatigue, corpses, spell schools …), turn timer
-- [ ] Main window (Firestone-like): navigation on the left, **Decks** section (deck code import, local stats per deck, matchups), **Replays** (local list)
+- [ ] Main window (Firestone-like): navigation on the left, **Battlegrounds** (games, heroes, placements), **Decks** section (deck code import, local stats per deck, matchups), **Replays** (local list)
 - [ ] Settings: size, opacity, position, which zones are visible
 - [ ] First public **alpha release** of overLay plus the mod
-- **Acceptance:** a full Ranked game on the native Linux client (hearthstone-linux-gui), under Proton and under Windows is tracked correctly, within the resource budget.
+- **Acceptance:** full Battlegrounds games and a full Ranked game on the native Linux client (hearthstone-linux-gui), under Proton and under Windows are tracked correctly, within the resource budget.
 
 ### Phase 7: Firestone parity in waves *(ongoing)*
 Ordered by value and effort:

@@ -47,3 +47,5 @@ settings-hotkey-hint = Tastenkürzel lassen sich vorerst in { $path } ändern.
 settings-save-failed = Die Einstellungen konnten nicht gespeichert werden: { $reason }
 
 status-version = { -app-name } { $version }
+
+provider-restart-needed = { -app-name } hat die Spiel-Logs eingeschaltet, die { $game } für Live-Spielereignisse braucht. Starte { $game } einmal neu, um sie zu nutzen.

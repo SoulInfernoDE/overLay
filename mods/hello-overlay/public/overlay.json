@@ -7,20 +7,29 @@
   "license": "GPL-3.0-or-later",
   "source": "https://github.com/SoulInfernoDE/overLay/tree/main/mods/hello-overlay",
   "games": ["hearthstone"],
-  "permissions": ["game.state", "storage", "notifications", "hotkeys"],
+  "permissions": ["game.state", "game.events", "storage", "notifications", "hotkeys"],
   "network": ["api.hearthstonejson.com"],
   "windows": {
     "panel": {
       "kind": "overlay",
       "entry": "index.html",
       "width": 300,
-      "height": 210,
-      "position": { "x": 40, "y": 320 }
+      "height": 250,
+      "position": {
+        "x": 40,
+        "y": 320
+      }
     },
-    "desktop": { "kind": "desktop", "entry": "desktop.html" }
+    "desktop": {
+      "kind": "desktop",
+      "entry": "desktop.html"
+    }
   },
   "hotkeys": {
-    "compact": { "default": "Ctrl+Shift+K", "label": "hotkey-compact" }
+    "compact": {
+      "default": "Ctrl+Shift+K",
+      "label": "hotkey-compact"
+    }
   },
   "settings": [
     {
@@ -30,6 +39,11 @@
       "default": "greeting-friendly",
       "options": ["greeting-friendly", "greeting-formal"]
     },
-    { "id": "show-size", "label": "setting-show-size", "type": "boolean", "default": true }
+    {
+      "id": "show-size",
+      "label": "setting-show-size",
+      "type": "boolean",
+      "default": true
+    }
   ]
 }

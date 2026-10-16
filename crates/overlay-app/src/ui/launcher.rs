@@ -60,6 +60,6 @@ fn on_message(app: &AppHandle, message: CoreMessage) {
         CoreMessage::Response { .. }
         | CoreMessage::Target { .. }
         | CoreMessage::ToggleOverlay
-        | CoreMessage::Toast { .. } => {}
+        | CoreMessage::ToastsPending => {}
     }
 }

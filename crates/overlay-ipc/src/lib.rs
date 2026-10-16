@@ -107,6 +107,15 @@ pub enum ModCall {
     BusPost {
         message: serde_json::Value,
     },
+    /// Summary of the running game (needs `game.events`).
+    GameInfo,
+}
+
+/// A notification for the overlay, optionally naming the mod that asked for it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Toast {
+    pub text: String,
+    pub source: Option<String>,
 }
 
 /// The game an overlay process draws over.
@@ -149,11 +158,8 @@ pub enum CoreMessage {
         data: serde_json::Value,
         permission: Option<Permission>,
     },
-    /// Overlay only: show a toast, optionally naming the mod that asked for it.
-    Toast {
-        text: String,
-        source: Option<String>,
-    },
+    /// Overlay only: toasts are waiting; fetch them with [`Request::TakeToasts`].
+    ToastsPending,
     /// Bring the window to the front (e.g. the user started overLay a second time).
     Focus,
     /// Close the window and exit.
@@ -197,6 +203,8 @@ pub enum Request {
         widget: String,
         position: Position,
     },
+    /// Overlay only: the waiting toasts, which the core then forgets.
+    TakeToasts,
     ListMods,
     /// Reads the mod folders again (developer mode: after rebuilding a mod).
     ReloadMods,

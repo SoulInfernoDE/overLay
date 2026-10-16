@@ -145,13 +145,35 @@
     frameHost.emit('locale', currentLocale());
   });
 
+  // Toasts that arrive while the overlay is hidden wait until it is visible again.
+  let visible = false;
+  const waiting: string[] = [];
+
   function showToast(text: string) {
+    if (!visible) {
+      waiting.push(text);
+      return;
+    }
     const id = nextToast++;
     toasts.push({ id, text });
     setTimeout(() => (toasts = toasts.filter((toast) => toast.id !== id)), TOAST_MS);
   }
 
-  function onVisible(visible: boolean) {
+  /** Fetches the toasts the core keeps for the overlay. */
+  async function takeToasts() {
+    const taken = await coreRequest<{ text: string; source: string | null }[]>({
+      type: 'take-toasts',
+    });
+    for (const toast of taken) {
+      showToast(toast.source ? `${toast.source}: ${toast.text}` : toast.text);
+    }
+  }
+
+  function onVisible(isVisible: boolean) {
+    visible = isVisible;
+    if (visible) {
+      for (const text of waiting.splice(0)) showToast(text);
+    }
     if (!visible || greeted || !target || !settings) return;
     greeted = true;
     showToast(
@@ -191,9 +213,7 @@
     await onHostEvent<ModEvent>('mod-event', (event) =>
       frameHost.emit(event.name, event.data, { modId: event.mod_id, permission: event.permission }),
     );
-    await onHostEvent<{ text: string; source: string | null }>('toast', (toast) =>
-      showToast(toast.source ? `${toast.source}: ${toast.text}` : toast.text),
-    );
+    await onHostEvent<null>('toasts-pending', () => void takeToasts());
     // The hotkey must show an effect even while no widget is on screen.
     await onHostEvent<boolean>('overlay-toggled', (hidden) => {
       if (!hidden && settings) {
@@ -222,6 +242,7 @@
       };
       onVisible(true);
     }
+    await takeToasts();
     syncRegions();
   });
 </script>

@@ -82,7 +82,8 @@ export type ModCall =
   | { method: 'storage-remove'; key: string }
   | { method: 'storage-keys' }
   | { method: 'notify'; text: string }
-  | { method: 'bus-post'; message: unknown };
+  | { method: 'bus-post'; message: unknown }
+  | { method: 'game-info' };
 
 /** Mirrors `overlay_ipc::CoreMessage::ModEvent`. */
 export interface ModEvent {
@@ -120,6 +121,7 @@ export type Request =
       widget: string;
       position: Position;
     }
+  | { type: 'take-toasts' }
   | { type: 'list-mods' }
   | { type: 'reload-mods' }
   | { type: 'set-mod-enabled'; mod_id: string; enabled: boolean }
@@ -171,6 +173,8 @@ function sampleResponse(request: Request): unknown {
     case 'save-widget-position':
     case 'mod-call':
       return null;
+    case 'take-toasts':
+      return [];
     case 'list-mods':
     case 'reload-mods':
     case 'set-mod-enabled':

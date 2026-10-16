@@ -30,3 +30,7 @@ setting-show-size = Größe des Spielfensters anzeigen
 desktop-title = Hello Overlay im Launcher
 desktop-hint = Diese Seite läuft im Launcher. Sie teilt ihren Speicher mit dem Overlay-Panel und spricht über den Nachrichtenbus mit ihm.
 desktop-reset = Zähler zurücksetzen
+
+panel-live = { $mode } · Zug { $turn } · { $hand } Karten auf der Hand
+panel-no-game = Noch keine Partie.
+panel-last-event = Letztes Ereignis: { $event }

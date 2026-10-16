@@ -1,0 +1,66 @@
+// Types of the Hearthstone provider's events and game summary (`game.events`).
+// They mirror `overlay_hearthstone::state` in the host.
+
+export type Side = 'friendly' | 'opposing' | 'unknown';
+
+/** Lowercase zone names, e.g. `deck`, `hand`, `play`, `graveyard`, `secret`, `setaside`. */
+export type Zone = string;
+
+export interface PlayerInfo {
+  player_id: number;
+  name: string | null;
+  side: Side;
+}
+
+export type GameEvent =
+  | {
+      name: 'game-start';
+      data: {
+        /** e.g. `GT_RANKED`, `GT_BATTLEGROUNDS`, `GT_ARENA`, `GT_VS_AI`. */
+        game_type: string | null;
+        format: string | null;
+        scenario_id: number | null;
+        players: PlayerInfo[];
+      };
+    }
+  /** Mulligan, or the hero choice in Battlegrounds. */
+  | { name: 'mulligan' }
+  | { name: 'turn-start'; data: { turn: number; side: Side } }
+  /** A card moved; `from` is null for newly created cards. */
+  | {
+      name: 'zone-change';
+      data: { entity_id: number; card_id: string | null; side: Side; from: Zone | null; to: Zone };
+    }
+  | {
+      name: 'card-revealed';
+      data: { entity_id: number; card_id: string; side: Side; zone: Zone | null };
+    }
+  | { name: 'game-end'; data: { result: 'win' | 'loss' | 'tie' | 'unknown' } };
+
+export interface CardInfo {
+  entity_id: number;
+  card_id: string | null;
+}
+
+export interface SideInfo {
+  player_id: number | null;
+  name: string | null;
+  hero: CardInfo | null;
+  hand: CardInfo[];
+  play: CardInfo[];
+  secrets: CardInfo[];
+  graveyard: CardInfo[];
+  deck_count: number;
+}
+
+/** Summary of the running game, for mods that start in the middle of it. */
+export interface GameInfo {
+  in_game: boolean;
+  game_type: string | null;
+  format: string | null;
+  scenario_id: number | null;
+  turn: number;
+  current: Side | null;
+  friendly: SideInfo;
+  opposing: SideInfo;
+}

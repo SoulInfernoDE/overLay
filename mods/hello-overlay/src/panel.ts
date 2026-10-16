@@ -4,7 +4,7 @@
 // on every event would replace a button between mouse down and mouse up, and the click
 // would be lost.
 
-import { overlay } from '@overlay/sdk';
+import { overlay, type Hearthstone } from '@overlay/sdk';
 import { el } from './dom';
 import './panel.css';
 
@@ -16,6 +16,8 @@ async function main() {
   let count = (await overlay.storage.get<number>('count')) ?? 0;
   let compact = false;
   let network: string[] = [];
+  let info: Hearthstone.GameInfo | null = await overlay.events.getInfo();
+  let lastEvent: Hearthstone.GameEvent | null = null;
 
   const title = el('span');
   const hint = el('span', { className: 'hint' });
@@ -23,6 +25,8 @@ async function main() {
   const greeting = el('p');
   const size = el('p', { className: 'muted' });
   const counter = el('p', { className: 'muted' });
+  const live = el('p', { className: 'muted' });
+  const lastLine = el('p', { className: 'muted' });
   const countButton = el('button', { onclick: () => void countClick() });
   const notifyButton = el('button', {
     onclick: () => void overlay.notifications.show(t('notification')),
@@ -35,6 +39,8 @@ async function main() {
     greeting,
     size,
     counter,
+    live,
+    lastLine,
     el('div', { className: 'buttons' }, countButton, notifyButton, networkButton),
     networkLines,
   );
@@ -83,6 +89,14 @@ async function main() {
       });
     }
     counter.textContent = t('panel-count', { count });
+    live.textContent = info?.in_game
+      ? t('panel-live', {
+          mode: info.game_type ?? '?',
+          turn: info.turn,
+          hand: info.friendly.hand.length,
+        })
+      : t('panel-no-game');
+    lastLine.textContent = lastEvent ? t('panel-last-event', { event: describe(lastEvent) }) : '';
     countButton.textContent = t('panel-click');
     notifyButton.textContent = t('panel-notify');
     networkButton.textContent = t('panel-network');
@@ -96,6 +110,21 @@ async function main() {
     void overlay.windows.setInteractiveRegions(compact ? [header.getBoundingClientRect()] : null);
   }
 
+  // Only the event name and the moved zone; card ids would need a card database.
+  function describe(event: Hearthstone.GameEvent): string {
+    return event.name === 'zone-change'
+      ? `${event.name} (${event.data.from ?? '–'} → ${event.data.to})`
+      : event.name;
+  }
+
+  overlay.events.on((event) => {
+    lastEvent = event;
+    update();
+  });
+  overlay.events.onInfo((next) => {
+    info = next;
+    update();
+  });
   overlay.i18n.onChange(update);
   overlay.settings.onChange(update);
   overlay.game.onChange(update);

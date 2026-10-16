@@ -30,3 +30,7 @@ setting-show-size = Show the game window size
 desktop-title = Hello Overlay in the launcher
 desktop-hint = This page runs in the launcher. It shares its storage with the overlay panel and talks to it over the message bus.
 desktop-reset = Reset the counter
+
+panel-live = { $mode } · turn { $turn } · { $hand } cards in hand
+panel-no-game = No game running yet.
+panel-last-event = Last event: { $event }

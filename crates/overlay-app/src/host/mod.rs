@@ -7,8 +7,10 @@ mod hotkeys;
 mod launcher;
 mod mods;
 mod overlay;
+mod providers;
 mod requests;
 mod state;
+mod toasts;
 mod tray;
 
 use overlay_games::Catalog;
@@ -57,6 +59,8 @@ pub fn run() {
         .manage(UiProcesses::default())
         .manage(overlay::CurrentTarget::default())
         .manage(mods::ModRegistry::new())
+        .manage(providers::Providers::default())
+        .manage(toasts::Toasts::default())
         .manage(hotkeys::Registered::default())
         .setup(move |app| {
             let handle = app.handle();

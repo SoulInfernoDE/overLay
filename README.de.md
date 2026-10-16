@@ -25,7 +25,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 <img src="assets/branding/flint/icon.svg" width="64" align="right" alt="">
 
-**Flint** ist ein Hearthstone-Companion mit Deck-Tracker, Gegner-Tracker sowie Helfern für Battlegrounds und Arena. Funktionsumfang und Optik orientieren sich an Firestone, Flint ist aber eine unabhängige Clean-Room-Implementierung. Hauptziel ist der **native Linux-Client**, gestartet über [hearthstone-linux-gui](https://github.com/DawnMagnet/hearthstone-linux-gui) (ohne Wine); Wine/Proton und Windows werden ebenfalls unterstützt. Flint bekommt ein eigenes Repository und wird über den Mod-Index installiert.
+**Flint** ist ein Hearthstone-Companion mit Deck-Tracker, Gegner-Tracker sowie Helfern für Battlegrounds und Arena. Funktionsumfang und Optik orientieren sich an Firestone, Flint ist aber eine unabhängige Clean-Room-Implementierung. Hauptziel ist der **native Linux-Client**, gestartet über [hearthstone-linux-gui](https://github.com/DawnMagnet/hearthstone-linux-gui) (ohne Wine); Wine/Proton und Windows werden ebenfalls unterstützt. Flint hat ein eigenes Repository, [SoulInfernoDE/flint](https://github.com/SoulInfernoDE/flint), und wird über den Mod-Index installiert.
 
 ## Aufbau des Repositorys
 

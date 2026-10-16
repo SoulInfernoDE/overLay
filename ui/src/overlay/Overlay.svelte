@@ -17,6 +17,7 @@
   import { ModFrameHost } from '../lib/mod-frames';
   import DemoWidget from './DemoWidget.svelte';
   import ModWindow, { type WindowState } from './ModWindow.svelte';
+  import { fitInside } from './fit';
   import { syncRegions } from './regions';
   import type { GameWindow, OverlayStatus, OverlayTarget } from './types';
 
@@ -108,10 +109,23 @@
       const layout = windowStates[key];
       if (!layout) return undefined;
       switch (method) {
-        case 'windows.dragBy':
-          layout.x = Math.min(Math.max(layout.x + Number(params.dx), 0), window.innerWidth - 40);
-          layout.y = Math.min(Math.max(layout.y + Number(params.dy), 0), window.innerHeight - 24);
+        case 'windows.dragBy': {
+          // Starts from where the window is shown, which may differ from its stored spot.
+          const spec = entry.mod.manifest.windows[entry.window];
+          const fit = (point: Position) =>
+            fitInside(
+              point,
+              spec?.width ?? 0,
+              spec?.height ?? 0,
+              window.innerWidth,
+              window.innerHeight,
+            );
+          const from = fit(layout);
+          const to = fit({ x: from.x + Number(params.dx), y: from.y + Number(params.dy) });
+          layout.x = to.x;
+          layout.y = to.y;
           return Promise.resolve(null);
+        }
         case 'windows.dragEnd':
           savePosition(key, { x: layout.x, y: layout.y });
           return Promise.resolve(null);

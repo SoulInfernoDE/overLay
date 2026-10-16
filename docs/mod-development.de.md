@@ -57,7 +57,7 @@ Alle URLs im Mod müssen relativ sein (mit Vite: `base: './'`).
 | `games` | Spiele-IDs aus dem Spielekatalog des Hosts; Overlay-Fenster erscheinen nur in diesen Spielen |
 | `permissions` | Siehe unten; unbekannte Werte werden abgelehnt |
 | `network` | Einfache Host-Namen (ohne Schema, Port, Pfad oder Platzhalter), die der Mod per https erreichen darf |
-| `windows` | `overlay`-Fenster brauchen `width` und `height`; `entry` muss im Mod-Ordner liegen |
+| `windows` | `overlay`-Fenster brauchen `width` und `height`; `position` ist in CSS-Pixeln ab der linken oberen Ecke des Spielfensters, und overLay holt Fenster, die außerhalb lägen, zurück ins Bild; `entry` muss im Mod-Ordner liegen |
 | `hotkeys` | Brauchen die Berechtigung `hotkeys`; `label` ist eine Fluent-Nachrichten-ID |
 | `settings` | Typen `boolean`, `number` (`min`, `max`), `text`, `choice` (`options` sind Nachrichten-IDs und gespeicherte Werte); overLay erzeugt die Einstellungsseite |
 

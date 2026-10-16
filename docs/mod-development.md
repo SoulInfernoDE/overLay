@@ -57,7 +57,7 @@ All URLs inside the mod must be relative (with Vite: `base: './'`).
 | `games` | Game ids from the host's game catalog; overlay windows only appear in these games |
 | `permissions` | See below; unknown values are rejected |
 | `network` | Plain host names (no scheme, port, path or wildcard) the mod may contact over https |
-| `windows` | `overlay` windows need `width` and `height`; `entry` must stay inside the mod folder |
+| `windows` | `overlay` windows need `width` and `height`; `position` is in CSS pixels from the top left of the game window, and overLay moves windows that would lie outside back inside; `entry` must stay inside the mod folder |
 | `hotkeys` | Need the `hotkeys` permission; `label` is a Fluent message id |
 | `settings` | Types `boolean`, `number` (`min`, `max`), `text`, `choice` (`options` are message ids and stored values); overLay generates the settings page |
 

@@ -6,7 +6,8 @@
 //! | Wine/Proton | `<install dir>/Logs/` | `<prefix>/drive_c/users/<user>/AppData/Local/Blizzard/Hearthstone/` |
 //! | Windows | `<install dir>\Logs\` | `%LOCALAPPDATA%\Blizzard\Hearthstone\` |
 //!
-//! Every game start creates a new `Logs/Hearthstone_<date>_<time>/` folder.
+//! Every game start creates a new `Logs/Hearthstone_<date>_<time>/` folder. The log size
+//! limit is set in `client.config` next to the game executable (see `client_config`).
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -17,6 +18,10 @@ use overlay_games::Flavor;
 pub struct Install {
     pub logs_dir: PathBuf,
     pub log_config: PathBuf,
+    /// `client.config` in the game folder.
+    pub client_config: PathBuf,
+    /// hearthstone-linux-gui's own `client.config.overrides` (native client only).
+    pub launcher_overrides: Option<PathBuf>,
 }
 
 /// Where the Hearthstone process `pid` keeps its logs and log settings.
@@ -72,9 +77,16 @@ mod imp {
                             .parent()
                             .map(Path::to_path_buf)
                     })?;
+                let config_home = std::env::var_os("XDG_CONFIG_HOME")
+                    .map(PathBuf::from)
+                    .unwrap_or_else(|| home.join(".config"));
                 Some(Install {
                     logs_dir: game_dir.join("Logs"),
                     log_config: home.join("Library/Preferences/Blizzard/Hearthstone/log.config"),
+                    client_config: game_dir.join("client.config"),
+                    launcher_overrides: Some(
+                        config_home.join("hearthstone-linux-gui/client.config.overrides"),
+                    ),
                 })
             }
             Flavor::Wine => {
@@ -105,6 +117,8 @@ mod imp {
                         .join("drive_c/users")
                         .join(user)
                         .join("AppData/Local/Blizzard/Hearthstone/log.config"),
+                    client_config: install_dir.join("client.config"),
+                    launcher_overrides: None,
                 })
             }
         }
@@ -156,9 +170,12 @@ mod imp {
         }
         let exe = PathBuf::from(String::from_utf16_lossy(&buffer[..length as usize]));
         let local = std::env::var_os("LOCALAPPDATA").map(PathBuf::from)?;
+        let install_dir = exe.parent()?;
         Some(Install {
-            logs_dir: exe.parent()?.join("Logs"),
+            logs_dir: install_dir.join("Logs"),
             log_config: local.join("Blizzard\\Hearthstone\\log.config"),
+            client_config: install_dir.join("client.config"),
+            launcher_overrides: None,
         })
     }
 }

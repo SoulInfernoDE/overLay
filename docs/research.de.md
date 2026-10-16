@@ -191,6 +191,7 @@ Fakten, die für Flint wichtig sind (aus dem Quellcode des Launchers, Stand 2026
 | Spieleinstellungen | Der Linux-Unity-Player nutzt den **macOS-Ort**: `~/Library/Preferences/Blizzard/Hearthstone/options.txt`. `log.config` gehört in denselben Ordner: am 2026-10-14 **bestätigt**, der Client schreibt dann `Power.log`, `Zone.log` und die übrigen eingeschalteten Logs |
 | Spiel-Logs | `<game_dir>/Logs/Hearthstone_<JJJJ_MM_TT_hh_mm_ss>/`, ein Ordner pro Spielstart (**bestätigt**; nicht `Bin/Logs/`). Der Launcher leitet Unitys stdout/stderr (`Player.log`) in seinen eigenen Log-Ordner um |
 | Fenster | Unity-Linux-Player, normalerweise X11/XWayland, also dasselbe Overlay-Backend wie bei Proton |
+| Log-Größenbegrenzung | Sobald irgendein Log 10 MB erreicht (`Truncating log, which has reached the size limit of 10000KB`), schreibt Hearthstone gar keine Logs mehr. Die `client.config` im Spielordner hebt die Grenze auf: `[Log] FileSizeLimit.Int=-1` oder flach `Log.FileSizeLimit.Int=-1`, wie der Launcher seine Einträge schreibt; eigene Einträge übernimmt der Launcher aus `~/.config/hearthstone-linux-gui/client.config.overrides` (**bestätigt** 2026-10-16) |
 
 **Weitere Linux-Tracker (als Referenz):**
 

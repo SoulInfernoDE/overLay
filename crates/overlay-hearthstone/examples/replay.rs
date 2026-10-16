@@ -1,7 +1,9 @@
 //! Runs a `Power.log` through the provider and prints a summary (no player names), to
 //! check the parser against real games locally:
 //!
-//!     cargo run -p overlay-hearthstone --example replay -- path/to/Power.log
+//!     cargo run -p overlay-hearthstone --example replay -- path/to/Power.log [entities.json]
+//!
+//! With a second path, all entities at the end of the log are written there as JSON.
 
 use std::collections::BTreeMap;
 
@@ -58,6 +60,11 @@ fn main() {
         info.in_game, info.turn, info.current
     );
     println!("entities: {}", state.entities_snapshot().len());
+    if let Some(out) = std::env::args().nth(2) {
+        let json = serde_json::to_string_pretty(&state.entities_snapshot()).expect("serializable");
+        std::fs::write(&out, json).expect("writable output");
+        println!("entities written to {out}");
+    }
     println!("friendly: {}", summary(&info.friendly));
     println!("opposing: {}", summary(&info.opposing));
 }

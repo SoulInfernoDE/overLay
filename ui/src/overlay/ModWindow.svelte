@@ -2,6 +2,7 @@
   import type { Rect } from '@overlay/sdk/protocol';
   import type { Manifest, ModView } from '../lib/host';
   import type { ModFrameHost } from '../lib/mod-frames';
+  import { fitInside } from './fit';
   import { syncRegions } from './regions';
 
   export interface WindowState {
@@ -29,6 +30,13 @@
   } = $props();
 
   let frame: HTMLIFrameElement | undefined = $state();
+  let viewportWidth = $state(window.innerWidth);
+  let viewportHeight = $state(window.innerHeight);
+
+  // Shown inside the overlay even if the stored or default position is not.
+  const shown = $derived(
+    fitInside(layout, spec.width ?? 0, spec.height ?? 0, viewportWidth, viewportHeight),
+  );
 
   $effect(() => {
     if (!frame) return;
@@ -38,19 +46,21 @@
   });
 
   $effect(() => {
-    void layout.x;
-    void layout.y;
+    void shown.x;
+    void shown.y;
     void layout.regions;
     void layout.clickThrough;
     syncRegions();
   });
 </script>
 
+<svelte:window bind:innerWidth={viewportWidth} bind:innerHeight={viewportHeight} />
+
 <div
   class="mod-window"
   class:interactive={!layout.clickThrough && !layout.regions}
-  style:left="{layout.x}px"
-  style:top="{layout.y}px"
+  style:left="{shown.x}px"
+  style:top="{shown.y}px"
   style:width="{spec.width}px"
   style:height="{spec.height}px"
 >

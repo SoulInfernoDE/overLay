@@ -8,6 +8,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- Overlay windows of mods are kept inside the overlay: a manifest or stored position outside the game window (e.g. after switching to windowed mode) no longer hides the window, and dragging starts from where it is shown
 - The Hearthstone provider lifts the game's log size limit in `client.config` (and in hearthstone-linux-gui's overrides): Hearthstone stopped writing all logs once one reached 10 MB, so the end of longer games was never seen
 - The overlay stays visible while the game is shown and no other active window covers it, so working on another monitor keeps it (it used to hide whenever the game lost focus)
 - Roadmap after the overlay spike: one shared overlay webview for all mods, the overlay never takes focus, clickable regions are converted by the device pixel ratio; the native client's `log.config` and log locations are confirmed

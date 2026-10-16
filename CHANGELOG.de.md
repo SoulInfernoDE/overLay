@@ -8,6 +8,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Geändert
 
+- Der Hearthstone-Provider hebt die Log-Größenbegrenzung des Spiels in der `client.config` auf (und in den Overrides von hearthstone-linux-gui): Hearthstone hörte auf, Logs zu schreiben, sobald einer 10 MB erreichte, sodass das Ende längerer Partien nie ankam
 - Das Overlay bleibt sichtbar, solange das Spiel angezeigt wird und kein anderes aktives Fenster es überdeckt; Arbeiten auf einem anderen Monitor lässt es also stehen (vorher verschwand es, sobald das Spiel den Fokus verlor)
 - Fahrplan nach dem Overlay-Spike: eine gemeinsame Overlay-WebView für alle Mods, das Overlay nimmt nie den Fokus, klickbare Bereiche werden mit dem Device-Pixel-Ratio umgerechnet; Orte von `log.config` und Logs beim nativen Client bestätigt
 - Fahrplan und Recherche: Der native Linux-Client von Hearthstone (hearthstone-linux-gui, macOS-Spieldateien auf Unitys Linux-Player) ist jetzt Hauptziel von Flint, mit Details zu Prozess, Pfaden und Logs

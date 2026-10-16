@@ -12,7 +12,7 @@ use std::time::Duration;
 
 use overlay_games::RunningGame;
 use overlay_hearthstone::locate::locate;
-use overlay_hearthstone::{Provider, log_config};
+use overlay_hearthstone::{Provider, client_config, log_config};
 use overlay_i18n::FluentArgs;
 use overlay_ipc::CoreMessage;
 use overlay_mods::Permission;
@@ -108,16 +108,30 @@ fn run_hearthstone(app: &AppHandle, game: &RunningGame, stop: &AtomicBool) {
         return;
     };
     eprintln!("[overlay] Hearthstone logs: {}", install.logs_dir.display());
-    match log_config::ensure(&install.log_config) {
+    // Logs to write (log.config) and no size limit that would stop them mid-game
+    // (client.config, plus the native launcher's overrides so updates keep it).
+    let mut changed = false;
+    let mut ensure = |path: &std::path::Path, result: std::io::Result<bool>| match result {
         Ok(true) => {
-            eprintln!("[overlay] updated {}", install.log_config.display());
-            ask_for_restart(app);
+            eprintln!("[overlay] updated {}", path.display());
+            changed = true;
         }
         Ok(false) => {}
-        Err(err) => eprintln!(
-            "[overlay] cannot update {}: {err}",
-            install.log_config.display()
-        ),
+        Err(err) => eprintln!("[overlay] cannot update {}: {err}", path.display()),
+    };
+    ensure(&install.log_config, log_config::ensure(&install.log_config));
+    ensure(
+        &install.client_config,
+        client_config::ensure(&install.client_config),
+    );
+    if let Some(overrides) = &install.launcher_overrides {
+        ensure(
+            overrides,
+            client_config::ensure_launcher_override(overrides),
+        );
+    }
+    if changed {
+        ask_for_restart(app);
     }
 
     let processes = app.state::<UiProcesses>();

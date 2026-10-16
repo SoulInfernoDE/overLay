@@ -1,6 +1,7 @@
 //! Hearthstone game provider: finds the game's logs, makes sure the game writes them,
 //! follows `Power.log` and turns it into game events and a game summary for mods.
 
+pub mod client_config;
 pub mod locate;
 pub mod log_config;
 pub mod power;

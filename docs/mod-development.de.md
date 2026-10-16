@@ -118,8 +118,11 @@ Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` lie
 | `zone-change` | `entity_id`, `card_id` (null, solange verdeckt), `side`, `from` (null bei neuen Karten), `to` (`deck`, `hand`, `play`, `graveyard`, `secret`, `setaside` …) |
 | `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
+| `game-created` | – eine neue Partie beginnt |
 
-`overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet. Karten-IDs sind Hearthstones eigene IDs; Namen und Bilder lädst du aus einer Kartendatenbank, die du in `network` deklarierst (z. B. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
+`overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet.
+
+Für alles andere hält das SDK einen **Spiegel aller Entitäten der Partie mit allen Tags**: `overlay.events.entities()` (eine schreibgeschützte `Map` nach Entitäts-ID) und `onEntitiesChanged(cb)` (die im letzten Paket geänderten IDs). Er wird beim Start deines Fensters vollständig geladen und alle 100 ms paketweise aktualisiert. Dort stecken die Schlachtfeld-Daten, z. B. `PLAYER_TECH_LEVEL` (Tavernenstufe) und `RESOURCES` an der Spieler-Entität, `PLAYER_LEADERBOARD_PLACE` an den Helden, `BACON_CURRENT_COMBAT_PLAYER_ID` für den aktuellen Gegner. Karten-IDs sind Hearthstones eigene IDs; Namen und Bilder lädst du aus einer Kartendatenbank, die du in `network` deklarierst (z. B. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 
 ## Sandbox
 

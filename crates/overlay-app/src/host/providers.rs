@@ -25,16 +25,29 @@ const POLL: Duration = Duration::from_millis(100);
 /// The game may need a moment before its folders and process details are readable.
 const LOCATE_ATTEMPTS: u32 = 30;
 
+/// Events go to the UI processes in batches of at most this many (a Battlegrounds game
+/// read from the start yields thousands at once).
+const BATCH: usize = 1000;
+
 #[derive(Default)]
 pub struct Providers {
     running: Mutex<HashMap<u32, Arc<AtomicBool>>>,
     /// Latest summary of the running game, as sent to mods.
     info: Mutex<Option<serde_json::Value>>,
+    /// The provider of the running game, for entity snapshots.
+    current: Mutex<Option<Arc<Mutex<Provider>>>>,
 }
 
 impl Providers {
     pub fn info(&self) -> Option<serde_json::Value> {
         self.info.lock().expect("info lock").clone()
+    }
+
+    /// All entities of the running game, or `None` outside a game.
+    pub fn entities(&self) -> Option<serde_json::Value> {
+        let provider = self.current.lock().expect("current lock").clone()?;
+        let snapshot = provider.lock().expect("provider lock").entities();
+        serde_json::to_value(snapshot).ok()
     }
 }
 
@@ -72,6 +85,7 @@ pub fn stop(app: &AppHandle, game: &RunningGame) {
         stop.store(true, Ordering::SeqCst);
     }
     *providers.info.lock().expect("info lock") = None;
+    *providers.current.lock().expect("current lock") = None;
 }
 
 fn run_hearthstone(app: &AppHandle, game: &RunningGame, stop: &AtomicBool) {
@@ -108,22 +122,25 @@ fn run_hearthstone(app: &AppHandle, game: &RunningGame, stop: &AtomicBool) {
 
     let processes = app.state::<UiProcesses>();
     let providers = app.state::<Providers>();
-    let mut provider = Provider::new(install.logs_dir);
+    let provider = Arc::new(Mutex::new(Provider::new(install.logs_dir)));
+    *providers.current.lock().expect("current lock") = Some(Arc::clone(&provider));
     let mut last_info = String::new();
     while !stop.load(Ordering::SeqCst) {
-        match provider.poll() {
+        let polled = provider.lock().expect("provider lock").poll();
+        match polled {
             // Nothing new (e.g. in the menus): the summary cannot have changed either.
             Ok(events) if events.is_empty() => {}
             Ok(events) => {
-                for event in events {
+                for batch in events.chunks(BATCH) {
                     processes.broadcast(&CoreMessage::ModEvent {
                         mod_id: None,
-                        name: "game-event".into(),
-                        data: serde_json::to_value(event).unwrap_or_default(),
+                        name: "game-events".into(),
+                        data: serde_json::to_value(batch).unwrap_or_default(),
                         permission: Some(Permission::GameEvents),
                     });
                 }
-                let info = serde_json::to_value(provider.info()).unwrap_or_default();
+                let info = serde_json::to_value(provider.lock().expect("provider lock").info())
+                    .unwrap_or_default();
                 let text = info.to_string();
                 if text != last_info {
                     last_info = text;

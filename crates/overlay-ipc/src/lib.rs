@@ -109,6 +109,8 @@ pub enum ModCall {
     },
     /// Summary of the running game (needs `game.events`).
     GameInfo,
+    /// All entities of the running game with all tags (needs `game.events`).
+    GameEntities,
 }
 
 /// A notification for the overlay, optionally naming the mod that asked for it.

@@ -118,8 +118,11 @@ With `game.events`, a mod receives what the host reads from Hearthstone's `Power
 | `zone-change` | `entity_id`, `card_id` (null while hidden), `side`, `from` (null for new cards), `to` (`deck`, `hand`, `play`, `graveyard`, `secret`, `setaside` …) |
 | `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
+| `game-created` | – a new game begins |
 
-`overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game. Card ids are Hearthstone's own ids; load names and images from a card database you declare in `network` (e.g. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
+`overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game.
+
+For everything else, the SDK keeps a **mirror of all game entities with all their tags**: `overlay.events.entities()` (a read-only `Map` by entity id) and `onEntitiesChanged(cb)` (ids changed in the last batch). It is loaded in full when your window starts and updated in batches every 100 ms. Battlegrounds data lives there, e.g. `PLAYER_TECH_LEVEL` (tavern tier) and `RESOURCES` on the player entity, `PLAYER_LEADERBOARD_PLACE` on the heroes, `BACON_CURRENT_COMBAT_PLAYER_ID` for the current opponent. Card ids are Hearthstone's own ids; load names and images from a card database you declare in `network` (e.g. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 
 ## Sandbox
 

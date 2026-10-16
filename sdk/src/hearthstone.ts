@@ -35,7 +35,28 @@ export type GameEvent =
       name: 'card-revealed';
       data: { entity_id: number; card_id: string; side: Side; zone: Zone | null };
     }
-  | { name: 'game-end'; data: { result: 'win' | 'loss' | 'tie' | 'unknown' } };
+  | { name: 'game-end'; data: { result: 'win' | 'loss' | 'tie' | 'unknown' } }
+  /** A new game begins (the entity mirror was cleared). */
+  | { name: 'game-created' };
+
+/**
+ * One entity of the game with all its tags, e.g. a minion, a hero, a player or the game
+ * itself. Tag names are Hearthstone's (`ZONE`, `CONTROLLER`, `PLAYER_TECH_LEVEL`,
+ * `PLAYER_LEADERBOARD_PLACE` …); unnamed tags appear as numbers.
+ */
+export interface Entity {
+  entity_id: number;
+  card_id: string | null;
+  tags: Record<string, string>;
+}
+
+/** Raw provider messages; the SDK turns them into events and the entity mirror. */
+export type ProviderMessage =
+  | GameEvent
+  | {
+      name: 'entity-update';
+      data: { entity_id: number; card_id: string | null; tags: Record<string, string> };
+    };
 
 export interface CardInfo {
   entity_id: number;
@@ -44,6 +65,8 @@ export interface CardInfo {
 
 export interface SideInfo {
   player_id: number | null;
+  /** The player's own entity (gold, tavern tier and similar tags live there). */
+  player_entity_id: number | null;
   name: string | null;
   hero: CardInfo | null;
   hand: CardInfo[];
@@ -61,6 +84,7 @@ export interface GameInfo {
   scenario_id: number | null;
   turn: number;
   current: Side | null;
+  game_entity_id: number | null;
   friendly: SideInfo;
   opposing: SideInfo;
 }

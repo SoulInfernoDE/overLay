@@ -71,6 +71,24 @@ pub enum GameEvent {
     GameEnd {
         result: GameResult,
     },
+    /// A new game begins; mods drop what they know about the previous one.
+    GameCreated,
+    /// Low-level: an entity was created or tags of it changed (`tags` holds only what
+    /// changed, or all tags of a new or revealed entity). Mods keep a mirror of all
+    /// entities from these, e.g. to follow the Battlegrounds tavern and leaderboard.
+    EntityUpdate {
+        entity_id: u32,
+        card_id: Option<String>,
+        tags: BTreeMap<String, String>,
+    },
+}
+
+/// One entity with all its tags, as in [`GameState::entities_snapshot`].
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct EntitySnapshot {
+    pub entity_id: u32,
+    pub card_id: Option<String>,
+    pub tags: BTreeMap<String, String>,
 }
 
 /// A card as part of [`GameInfo`].
@@ -83,6 +101,8 @@ pub struct CardInfo {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
 pub struct SideInfo {
     pub player_id: Option<u32>,
+    /// The player's own entity (gold, tavern tier and similar tags live there).
+    pub player_entity_id: Option<u32>,
     pub name: Option<String>,
     pub hero: Option<CardInfo>,
     pub hand: Vec<CardInfo>,
@@ -101,6 +121,7 @@ pub struct GameInfo {
     pub scenario_id: Option<u32>,
     pub turn: u32,
     pub current: Option<Side>,
+    pub game_entity_id: Option<u32>,
     pub friendly: SideInfo,
     pub opposing: SideInfo,
 }
@@ -179,6 +200,7 @@ impl GameState {
                     in_game: true,
                     ..GameState::default()
                 };
+                events.push(GameEvent::GameCreated);
             }
             Record::GameEntity { id } => {
                 self.game_entity = Some(id);
@@ -262,6 +284,15 @@ impl GameState {
         let Some(entity) = self.entities.get(&pending.id) else {
             return;
         };
+        events.push(GameEvent::EntityUpdate {
+            entity_id: entity.id,
+            card_id: entity.card_id.clone(),
+            tags: entity
+                .tags
+                .iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect(),
+        });
         if !entity.is_card() {
             return;
         }
@@ -308,6 +339,13 @@ impl GameState {
         let is_card = entity.is_card();
         let card_id = entity.card_id.clone();
         let controller = entity.number("CONTROLLER");
+        if previous.as_ref() != Some(&value) {
+            events.push(GameEvent::EntityUpdate {
+                entity_id: id,
+                card_id: card_id.clone(),
+                tags: BTreeMap::from([(tag.clone(), value.clone())]),
+            });
+        }
 
         if is_game {
             match tag.as_str() {
@@ -454,6 +492,21 @@ impl GameState {
         self.entities.get(&id)
     }
 
+    /// All entities with all tags, for mods that start in the middle of a game.
+    pub fn entities_snapshot(&self) -> Vec<EntitySnapshot> {
+        let mut entities: Vec<EntitySnapshot> = self
+            .entities
+            .values()
+            .map(|e| EntitySnapshot {
+                entity_id: e.id,
+                card_id: e.card_id.clone(),
+                tags: e.tags.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+            })
+            .collect();
+        entities.sort_by_key(|e| e.entity_id);
+        entities
+    }
+
     /// Summary for mods that join mid-game.
     pub fn info(&self) -> GameInfo {
         let side_info = |side: Side| -> SideInfo {
@@ -467,6 +520,7 @@ impl GameState {
             };
             let mut info = SideInfo {
                 player_id,
+                player_entity_id: player_id.and_then(|p| self.players.get(&p).copied()),
                 name: player_id.and_then(|p| self.header_names.get(&p).cloned()),
                 ..SideInfo::default()
             };
@@ -503,6 +557,7 @@ impl GameState {
             scenario_id: self.scenario_id,
             turn: self.turn,
             current: self.current_player.map(|p| self.side(Some(p))),
+            game_entity_id: self.game_entity,
             friendly: side_info(Side::Friendly),
             opposing: side_info(Side::Opposing),
         }

@@ -22,7 +22,12 @@ import {
 
 export type { GameState, ModContext, Rect, SettingValue } from './protocol';
 export type * as Hearthstone from './hearthstone';
-import type { GameEvent as HearthstoneEvent, GameInfo } from './hearthstone';
+import type {
+  Entity,
+  GameEvent as HearthstoneEvent,
+  GameInfo,
+  ProviderMessage,
+} from './hearthstone';
 
 type Listener = (data: unknown) => void;
 
@@ -36,6 +41,45 @@ let nextId = 1;
 let context: ModContext | null = null;
 let bundles: FluentBundle[] = [];
 let readyPromise: Promise<ModContext> | null = null;
+
+// Mirror of all game entities, kept up to date from the provider's batches.
+const entities = new Map<number, Entity>();
+// Batches that arrive while the initial snapshot is loading.
+let seeding = false;
+let buffered: ProviderMessage[][] = [];
+
+function applyBatch(batch: ProviderMessage[]): void {
+  const changed = new Set<number>();
+  for (const message of batch) {
+    if (message.name === 'entity-update') {
+      const { entity_id, card_id, tags } = message.data;
+      const entity = entities.get(entity_id) ?? { entity_id, card_id: null, tags: {} };
+      if (card_id) entity.card_id = card_id;
+      Object.assign(entity.tags, tags);
+      entities.set(entity_id, entity);
+      changed.add(entity_id);
+      continue;
+    }
+    if (message.name === 'game-created') entities.clear();
+    // High-level events see the mirror as it was at that point of the game.
+    emit('game-event', message);
+  }
+  if (changed.size > 0) emit('entities', [...changed]);
+}
+
+async function seedEntities(): Promise<void> {
+  seeding = true;
+  try {
+    const snapshot = await call<Entity[] | null>('events.entities');
+    entities.clear();
+    for (const entity of snapshot ?? []) entities.set(entity.entity_id, entity);
+  } catch (error) {
+    console.error('[overlay-sdk] cannot load the game entities:', error);
+  } finally {
+    seeding = false;
+    for (const batch of buffered.splice(0)) applyBatch(batch);
+  }
+}
 
 function post(message: FrameMessage): void {
   window.parent.postMessage(message, '*');
@@ -84,6 +128,12 @@ window.addEventListener('message', (event) => {
       }
       if (message.name === 'game-state' && context) {
         context.game = message.data as GameState | null;
+      }
+      if (message.name === 'game-events') {
+        const batch = message.data as ProviderMessage[];
+        if (seeding) buffered.push(batch);
+        else applyBatch(batch);
+        return;
       }
       emit(message.name, message.data);
       break;
@@ -135,6 +185,7 @@ export const overlay = {
         window.removeEventListener('message', onInit);
         context = message.context;
         await loadCatalogs(context);
+        if (context.permissions.includes('game.events')) await seedEntities();
         resolve(context);
       };
       window.addEventListener('message', onInit);
@@ -230,6 +281,14 @@ export const overlay = {
   events: {
     on(listener: (event: HearthstoneEvent) => void): () => void {
       return on('game-event', (data) => listener(data as HearthstoneEvent));
+    },
+    /** All entities of the running game with all their tags (read-only view). */
+    entities(): ReadonlyMap<number, Readonly<Entity>> {
+      return entities;
+    },
+    /** Called after each batch with the ids of the entities that changed. */
+    onEntitiesChanged(listener: (entityIds: number[]) => void): () => void {
+      return on('entities', (data) => listener(data as number[]));
     },
     /** The current game summary, or null outside a game. */
     getInfo(): Promise<GameInfo | null> {

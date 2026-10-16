@@ -83,7 +83,8 @@ export type ModCall =
   | { method: 'storage-keys' }
   | { method: 'notify'; text: string }
   | { method: 'bus-post'; message: unknown }
-  | { method: 'game-info' };
+  | { method: 'game-info' }
+  | { method: 'game-entities' };
 
 /** Mirrors `overlay_ipc::CoreMessage::ModEvent`. */
 export interface ModEvent {

@@ -261,6 +261,13 @@ pub fn call(app: &AppHandle, mod_id: &str, call: ModCall) -> Result<serde_json::
             );
             Ok(serde_json::Value::Null)
         }
+        ModCall::GameEntities => {
+            require(Permission::GameEvents)?;
+            Ok(app
+                .state::<crate::host::providers::Providers>()
+                .entities()
+                .unwrap_or(serde_json::Value::Null))
+        }
         ModCall::GameInfo => {
             require(Permission::GameEvents)?;
             Ok(app

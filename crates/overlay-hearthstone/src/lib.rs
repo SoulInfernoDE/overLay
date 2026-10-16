@@ -54,4 +54,8 @@ impl Provider {
     pub fn info(&self) -> GameInfo {
         self.state.info()
     }
+
+    pub fn entities(&self) -> Vec<state::EntitySnapshot> {
+        self.state.entities_snapshot()
+    }
 }

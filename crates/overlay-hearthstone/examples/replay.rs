@@ -30,6 +30,8 @@ fn main() {
                     println!("game end: {result:?}");
                     "game-end"
                 }
+                GameEvent::GameCreated => "game-created",
+                GameEvent::EntityUpdate { .. } => "entity-update",
             };
             *counts.entry(kind).or_default() += 1;
         }
@@ -55,6 +57,7 @@ fn main() {
         "in game: {}, turn {}, current {:?}",
         info.in_game, info.turn, info.current
     );
+    println!("entities: {}", state.entities_snapshot().len());
     println!("friendly: {}", summary(&info.friendly));
     println!("opposing: {}", summary(&info.opposing));
 }

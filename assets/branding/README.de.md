@@ -33,4 +33,4 @@ python3 tools/branding/build_logos.py --font-dir <Ordner mit Inter-Bold.ttf und 
 
 ## Lizenz und Nutzung
 
-Die Logos stehen unter [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.de). Du darfst sie verwenden, um auf overLay und Flint zu verweisen, zum Beispiel in Artikeln, Videos oder Paketlisten. Verwende sie nicht so, dass der Eindruck entsteht, dein Projekt sei overLay oder Flint oder werde von ihnen unterstützt. Flints Markenauftritt zieht in das Flint-Repository um, sobald es existiert.
+Die Logos stehen unter [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/deed.de). Du darfst sie verwenden, um auf overLay und Flint zu verweisen, zum Beispiel in Artikeln, Videos oder Paketlisten. Verwende sie nicht so, dass der Eindruck entsteht, dein Projekt sei overLay oder Flint oder werde von ihnen unterstützt. Das [Flint-Repository](https://github.com/SoulInfernoDE/flint) enthält eine Kopie von Flints Logos; erzeugt werden sie hier.

@@ -33,4 +33,4 @@ python3 tools/branding/build_logos.py --font-dir <folder with Inter-Bold.ttf and
 
 ## License and use
 
-The logos are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). You may use them to refer to overLay and Flint, for example in articles, videos or package listings. Do not use them in a way that suggests your project is overLay or Flint, or is endorsed by them. Flint's branding moves to the Flint repository once it exists.
+The logos are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). You may use them to refer to overLay and Flint, for example in articles, videos or package listings. Do not use them in a way that suggests your project is overLay or Flint, or is endorsed by them. The [Flint repository](https://github.com/SoulInfernoDE/flint) carries a copy of Flint's logos; they are generated here.

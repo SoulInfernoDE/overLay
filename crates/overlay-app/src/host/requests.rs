@@ -58,6 +58,13 @@ pub fn handle(
             state.save_widget_position(&game_id, &resolution, &widget, position)?;
             Ok(serde_json::Value::Null)
         }
+        Request::TakeToasts => {
+            let toasts = app.state::<crate::host::toasts::Toasts>().take();
+            if std::env::var_os("OVERLAY_DEBUG").is_some() {
+                eprintln!("[overlay] overlay took {} toast(s)", toasts.len());
+            }
+            json(toasts)
+        }
         Request::ListMods => json(app.state::<ModRegistry>().list(&state.settings())),
         Request::ReloadMods => {
             let settings = state.settings().clone();

@@ -146,11 +146,8 @@ fn on_message(app: &AppHandle, message: CoreMessage) {
         message @ CoreMessage::ModEvent { .. } => {
             let _ = app.emit("mod-event", message);
         }
-        CoreMessage::Toast { text, source } => {
-            let _ = app.emit(
-                "toast",
-                serde_json::json!({ "text": text, "source": source }),
-            );
+        CoreMessage::ToastsPending => {
+            let _ = app.emit("toasts-pending", ());
         }
         CoreMessage::Close => app.exit(0),
         CoreMessage::Response { .. } | CoreMessage::Focus => {}
@@ -220,5 +217,9 @@ fn apply(app: &AppHandle) {
 /// Current target, game window and visibility, for a page that loads after the events.
 #[tauri::command]
 fn overlay_status(state: State<'_, OverlayState>) -> OverlayStatus {
-    state.status.lock().expect("status lock").clone()
+    let status = state.status.lock().expect("status lock").clone();
+    if std::env::var_os("OVERLAY_DEBUG").is_some() {
+        eprintln!("[overlay-ui] page asked for the status: {status:?}");
+    }
+    status
 }

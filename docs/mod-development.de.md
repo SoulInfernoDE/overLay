@@ -68,7 +68,7 @@ overLay lehnt Manifeste mit unbekannten Feldern ab, damit Tippfehler nicht unbem
 | Berechtigung | Erlaubt |
 |---|---|
 | `game.state` | Welches Spiel läuft und wie groß sein Fenster ist (Overlay-Fenster) |
-| `game.events` | Live-Ereignisse aus den Game Providern des Hosts (ab Phase 5) |
+| `game.events` | Live-Ereignisse und Spielübersicht aus den Game Providern des Hosts |
 | `storage` | Eigener Schlüssel-Wert-Speicher des Mods (JSON-Werte, bis 1 MB) |
 | `notifications` | Hinweis-Einblendungen im Overlay |
 | `hotkeys` | Die im Manifest deklarierten globalen Tastenkürzel |
@@ -97,7 +97,7 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 | `overlay.hotkeys.on(id, cb)` | Deine deklarierten Tastenkürzel (`hotkeys`) |
 | `overlay.settings.get()`, `onChange(cb)` | Werte deiner Einstellungen |
 | `overlay.game.getState()`, `onChange(cb)` | Spiel und Fenstergröße (`game.state`) |
-| `overlay.events.on(cb)` | Live-Ereignisse aus dem Spiel (`game.events`, ab Phase 5) |
+| `overlay.events.on(cb)`, `getInfo()`, `onInfo(cb)` | Live-Ereignisse und Spielübersicht (`game.events`), siehe unten |
 | `overlay.windows.makeDraggable(el)` | Nutzer können das Overlay-Fenster an `el` verschieben; overLay speichert die Position pro Spiel und Auflösung |
 | `overlay.windows.setInteractiveRegions(rects)` | Nur diese Bereiche nehmen Klicks an, der Rest geht ans Spiel; `null` = ganzes Fenster |
 | `overlay.windows.setClickThrough(true)` | Jeder Klick geht ans Spiel (rein optische Overlays) |
@@ -105,6 +105,21 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 **Baue das DOM einmal auf und aktualisiere nur die Texte.** Werden Elemente bei jedem Ereignis ersetzt, kann ein Knopf zwischen Maustaste-runter und Maustaste-hoch ausgetauscht werden, und der Klick geht verloren.
 
 Übergib Auflösungen und andere Zahlen, die nicht gruppiert werden dürfen, als Text (`String(width)`), denn WebKit ignoriert die Fluent-Option `useGrouping`.
+
+## Spielereignisse (Hearthstone)
+
+Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` liest. Typen: `import type { Hearthstone } from '@overlay/sdk'`.
+
+| Ereignis | Daten |
+|---|---|
+| `game-start` | `game_type` (z. B. `GT_RANKED`, `GT_BATTLEGROUNDS`, `GT_ARENA`), `format`, `scenario_id`, `players` (ID, Name, Seite) |
+| `mulligan` | – (im Schlachtfeld: die Heldenwahl) |
+| `turn-start` | `turn`, `side` (`friendly`, `opposing`, `unknown`) |
+| `zone-change` | `entity_id`, `card_id` (null, solange verdeckt), `side`, `from` (null bei neuen Karten), `to` (`deck`, `hand`, `play`, `graveyard`, `secret`, `setaside` …) |
+| `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
+| `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
+
+`overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet. Karten-IDs sind Hearthstones eigene IDs; Namen und Bilder lädst du aus einer Kartendatenbank, die du in `network` deklarierst (z. B. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 
 ## Sandbox
 

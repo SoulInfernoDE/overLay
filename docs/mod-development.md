@@ -68,7 +68,7 @@ overLay rejects manifests with unknown fields, so typos do not go unnoticed.
 | Permission | Allows |
 |---|---|
 | `game.state` | Which game runs and the size of its window (overlay windows) |
-| `game.events` | Live game events from the host's game providers (from phase 5) |
+| `game.events` | Live game events and the game summary from the host's game providers |
 | `storage` | The mod's own key-value storage (JSON values, up to 1 MB) |
 | `notifications` | Toast notifications in the overlay |
 | `hotkeys` | The global hotkeys declared in the manifest |
@@ -97,7 +97,7 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 | `overlay.hotkeys.on(id, cb)` | Your declared hotkeys (`hotkeys`) |
 | `overlay.settings.get()`, `onChange(cb)` | Values of your settings |
 | `overlay.game.getState()`, `onChange(cb)` | Game and window size (`game.state`) |
-| `overlay.events.on(cb)` | Live game events (`game.events`, from phase 5) |
+| `overlay.events.on(cb)`, `getInfo()`, `onInfo(cb)` | Live game events and the game summary (`game.events`), see below |
 | `overlay.windows.makeDraggable(el)` | Lets users move the overlay window by `el`; overLay saves the position per game and resolution |
 | `overlay.windows.setInteractiveRegions(rects)` | Only these parts take clicks, the rest goes to the game; `null` = whole window |
 | `overlay.windows.setClickThrough(true)` | Every click goes to the game (purely visual overlays) |
@@ -105,6 +105,21 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 **Build your DOM once and update texts in place.** Replacing elements on every event can swap a button between mouse down and mouse up, and the click is lost.
 
 Pass resolutions and other numbers that must not be grouped as strings (`String(width)`), because WebKit ignores Fluent's `useGrouping` option.
+
+## Game events (Hearthstone)
+
+With `game.events`, a mod receives what the host reads from Hearthstone's `Power.log`. Types: `import type { Hearthstone } from '@overlay/sdk'`.
+
+| Event | Data |
+|---|---|
+| `game-start` | `game_type` (e.g. `GT_RANKED`, `GT_BATTLEGROUNDS`, `GT_ARENA`), `format`, `scenario_id`, `players` (id, name, side) |
+| `mulligan` | – (in Battlegrounds: the hero choice) |
+| `turn-start` | `turn`, `side` (`friendly`, `opposing`, `unknown`) |
+| `zone-change` | `entity_id`, `card_id` (null while hidden), `side`, `from` (null for new cards), `to` (`deck`, `hand`, `play`, `graveyard`, `secret`, `setaside` …) |
+| `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
+| `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
+
+`overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game. Card ids are Hearthstone's own ids; load names and images from a card database you declare in `network` (e.g. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 
 ## Sandbox
 

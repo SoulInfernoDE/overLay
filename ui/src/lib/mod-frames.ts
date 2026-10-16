@@ -129,6 +129,8 @@ export class ModFrameHost {
         return core({ method: 'notify', text: String(params.text) });
       case 'bus.post':
         return core({ method: 'bus-post', message: params.message });
+      case 'events.info':
+        return core({ method: 'game-info' });
       default:
         return Promise.reject(new Error(`${method} is not available in this window`));
     }

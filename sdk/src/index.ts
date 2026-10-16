@@ -21,6 +21,8 @@ import {
 } from './protocol';
 
 export type { GameState, ModContext, Rect, SettingValue } from './protocol';
+export type * as Hearthstone from './hearthstone';
+import type { GameEvent as HearthstoneEvent, GameInfo } from './hearthstone';
 
 type Listener = (data: unknown) => void;
 
@@ -221,10 +223,21 @@ export const overlay = {
     },
   },
 
-  /** Live game events from the host's game providers; needs `game.events`. */
+  /**
+   * Live game events from the host's game providers; needs `game.events`. For
+   * Hearthstone, events and summary follow the types in `Hearthstone`.
+   */
   events: {
-    on(listener: (event: { name: string; data: unknown }) => void): () => void {
-      return on('game-event', (data) => listener(data as { name: string; data: unknown }));
+    on(listener: (event: HearthstoneEvent) => void): () => void {
+      return on('game-event', (data) => listener(data as HearthstoneEvent));
+    },
+    /** The current game summary, or null outside a game. */
+    getInfo(): Promise<GameInfo | null> {
+      return call<GameInfo | null>('events.info');
+    },
+    /** Called whenever the summary changes (at most ten times a second). */
+    onInfo(listener: (info: GameInfo) => void): () => void {
+      return on('game-info', (data) => listener(data as GameInfo));
     },
   },
 

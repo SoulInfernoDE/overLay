@@ -47,3 +47,5 @@ settings-hotkey-hint = Hotkeys can be changed in { $path } for now.
 settings-save-failed = Settings could not be saved: { $reason }
 
 status-version = { -app-name } { $version }
+
+provider-restart-needed = { -app-name } enabled the game logs { $game } needs for live game events. Restart { $game } once to use them.

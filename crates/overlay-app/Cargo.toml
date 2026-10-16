@@ -23,6 +23,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 overlay-games = { path = "../overlay-games" }
+overlay-hearthstone = { path = "../overlay-hearthstone" }
 overlay-i18n = { path = "../overlay-i18n" }
 overlay-ipc = { path = "../overlay-ipc" }
 overlay-mods = { path = "../overlay-mods" }

@@ -19,7 +19,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 - **Auch eigene Repos.** Neben dem offiziellen Index kannst du eigene Mod-Repositories per URL und öffentlichem Schlüssel hinzufügen.
 - **Leichtgewichtig.** Nativer Rust-Kern mit der System-WebView, keine mitgelieferte Browser-Engine und keine Code-Injektion in Spiele.
 
-> **Status: Pre-Alpha.** Host-App, Overlay im Spiel und Mod-SDK funktionieren unter Linux (X11); noch kein Mod-Repository. Siehe [Fahrplan](ROADMAP.de.md).
+> **Status: Pre-Alpha.** Host-App, Overlay im Spiel, Mod-SDK und Live-Ereignisse aus Hearthstone funktionieren unter Linux (X11); noch kein Mod-Repository. Siehe [Fahrplan](ROADMAP.de.md).
 
 ## Erster Mod: Flint
 
@@ -31,7 +31,7 @@ Der Launcher orientiert sich am Dock-Look bekannter Overlay-Plattformen, overLay
 
 | Pfad | Inhalt |
 |---|---|
-| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App: Kern-, Launcher- und Overlay-Prozess), `overlay-ipc`, `overlay-mods`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
+| `crates/` | Rust-Crates des Hosts: `overlay-app` (Tauri-App: Kern-, Launcher- und Overlay-Prozess), `overlay-ipc`, `overlay-mods`, `overlay-hearthstone`, `overlay-games`, `overlay-settings`, `overlay-i18n` |
 | `ui/` | Launcher-Oberfläche (Svelte 5, TypeScript, Vite) |
 | `locales/` | Fluent-Kataloge des Hosts, gemeinsam für Rust und UI (`en` als Basis, `de`) |
 | `sdk/` | Mod-SDK `@overlay/sdk` ([Mods schreiben](docs/mod-development.de.md)) |

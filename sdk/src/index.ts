@@ -82,7 +82,14 @@ async function seedEntities(): Promise<void> {
 }
 
 function post(message: FrameMessage): void {
-  window.parent.postMessage(message, '*');
+  try {
+    window.parent.postMessage(message, '*');
+  } catch (error) {
+    // Reactive state of UI frameworks (e.g. Svelte or Vue proxies) cannot be cloned
+    // for postMessage; a plain JSON copy carries the same data.
+    if (!(error instanceof DOMException && error.name === 'DataCloneError')) throw error;
+    window.parent.postMessage(JSON.parse(JSON.stringify(message)) as FrameMessage, '*');
+  }
 }
 
 function call<T>(method: string, params?: unknown): Promise<T> {

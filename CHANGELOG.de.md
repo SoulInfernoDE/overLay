@@ -8,6 +8,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Geändert
 
+- Das Mod-SDK schickt eine einfache Kopie, wenn sich die Daten eines Aufrufs nicht für `postMessage` klonen lassen; so kann reaktiver Zustand von UI-Frameworks (Svelte, Vue) an `overlay.storage.set` und andere Aufrufe gehen, solche Aufrufe schlugen vorher still fehl
 - Der Hearthstone-Provider verfolgt die Partie so, wie der Client sie abspielt (der `PowerTaskList`-Strom von `Power.log`), statt so, wie sie vom Server kommt: Schlachtfeld-Kämpfe kamen vollständig an, bevor ihre Animation begann, sodass Mods Ergebnisse zu früh zeigten und den Kampf selbst nie sahen. Änderungen an Spielern, die genannt werden, bevor ihr Name zugeordnet werden kann, werden nachgereicht, sobald das geht
 - Overlay-Fenster von Mods bleiben innerhalb des Overlays: Eine Position aus dem Manifest oder dem Speicher außerhalb des Spielfensters (z. B. nach dem Wechsel in den Fenstermodus) versteckt das Fenster nicht mehr, und Verschieben beginnt dort, wo es angezeigt wird
 - Der Hearthstone-Provider hebt die Log-Größenbegrenzung des Spiels in der `client.config` auf (und in den Overrides von hearthstone-linux-gui): Hearthstone hörte auf, Logs zu schreiben, sobald einer 10 MB erreichte, sodass das Ende längerer Partien nie ankam

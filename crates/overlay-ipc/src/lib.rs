@@ -111,6 +111,8 @@ pub enum ModCall {
     GameInfo,
     /// All entities of the running game with all tags (needs `game.events`).
     GameEntities,
+    /// Events of the running game so far, without entity updates (needs `game.events`).
+    GameHistory,
 }
 
 /// A notification for the overlay, optionally naming the mod that asked for it.

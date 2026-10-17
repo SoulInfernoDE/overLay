@@ -97,7 +97,7 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 | `overlay.hotkeys.on(id, cb)` | Your declared hotkeys (`hotkeys`) |
 | `overlay.settings.get()`, `onChange(cb)` | Values of your settings |
 | `overlay.game.getState()`, `onChange(cb)` | Game and window size (`game.state`) |
-| `overlay.events.on(cb)`, `getInfo()`, `onInfo(cb)` | Live game events and the game summary (`game.events`), see below |
+| `overlay.events.on(cb)`, `history()`, `getInfo()`, `onInfo(cb)` | Live game events, the events so far and the game summary (`game.events`), see below |
 | `overlay.windows.makeDraggable(el)` | Lets users move the overlay window by `el`; overLay saves the position per game and resolution |
 | `overlay.windows.setInteractiveRegions(rects)` | Only these parts take clicks, the rest goes to the game; `null` = whole window |
 | `overlay.windows.setClickThrough(true)` | Every click goes to the game (purely visual overlays) |
@@ -120,7 +120,7 @@ With `game.events`, a mod receives what the host reads from Hearthstone's `Power
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
 | `game-created` | – a new game begins |
 
-`overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game. When the user plays one of their own decks, `deck` holds its name and deck code (read from Hearthstone's `Decks.log`); it is null for loaner decks and in modes without a deck.
+`overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game; `overlay.events.history()` returns the events of the game so far (without entity updates), so you can also catch up on what happened before. When the user plays one of their own decks, `deck` holds its name and deck code (read from Hearthstone's `Decks.log`); it is null for loaner decks and in modes without a deck.
 
 For everything else, the SDK keeps a **mirror of all game entities with all their tags**: `overlay.events.entities()` (a read-only `Map` by entity id) and `onEntitiesChanged(cb)` (ids changed in the last batch). It is loaded in full when your window starts and updated in batches every 100 ms. Battlegrounds data lives there, e.g. `PLAYER_TECH_LEVEL` (tavern tier) and `RESOURCES` on the player entity, `PLAYER_LEADERBOARD_PLACE` on the heroes, `BACON_CURRENT_COMBAT_PLAYER_ID` for the current opponent. Card ids are Hearthstone's own ids; load names and images from a card database you declare in `network` (e.g. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 

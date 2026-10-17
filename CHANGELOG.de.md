@@ -8,6 +8,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Geändert
 
+- Der Hearthstone-Provider erkennt den Nutzer an den Startkarten, die das Spiel beim Ziehen aufdeckt, und meldet keinen Gegner, solange der Nutzer unbekannt ist; vorher konnte während der Starthand-Auswahl der eigene Spieler als Gegner gemeldet werden
 - Der Launcher kommt nach vorn, wenn er per Tastenkürzel, Infobereich oder zweitem Programmstart geöffnet wird, während ein Vollbild-Spiel aktiv ist (X11); der Fenstermanager hielt ihn vorher hinter dem Spiel
 - Das Mod-SDK schickt eine einfache Kopie, wenn sich die Daten eines Aufrufs nicht für `postMessage` klonen lassen; so kann reaktiver Zustand von UI-Frameworks (Svelte, Vue) an `overlay.storage.set` und andere Aufrufe gehen, solche Aufrufe schlugen vorher still fehl
 - Der Hearthstone-Provider verfolgt die Partie so, wie der Client sie abspielt (der `PowerTaskList`-Strom von `Power.log`), statt so, wie sie vom Server kommt: Schlachtfeld-Kämpfe kamen vollständig an, bevor ihre Animation begann, sodass Mods Ergebnisse zu früh zeigten und den Kampf selbst nie sahen. Änderungen an Spielern, die genannt werden, bevor ihr Name zugeordnet werden kann, werden nachgereicht, sobald das geht
@@ -19,6 +20,8 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- `overlay.events.history()`: die bisherigen Ereignisse der laufenden Partie, für Mods, die mitten in einer Partie starten; der Kern merkt sie sich pro Partie
+- Das Replay-Beispiel kann die Spielereignisse als JSON schreiben, um Mods an aufgezeichneten Partien zu testen
 - Der Hearthstone-Provider liest `Decks.log` und teilt Mods mit, welches seiner eigenen Decks der Nutzer spielt (`GameInfo.deck` mit Name und Deck-Code)
 - Hearthstone-Provider (Phase 5, `overlay-hearthstone`): findet die Logs des nativen Clients, von Wine/Proton und Windows, ergänzt `log.config`, folgt `Power.log` auch über Abschneiden und neue Log-Ordner hinweg und macht daraus Spielereignisse und eine Spielübersicht für Mods mit `game.events` (`overlay.events.on`, `getInfo`, `onInfo` mit TypeScript-Typen); Beispiele `replay` und `locate`, um echte Logs lokal zu prüfen
 - Hinweise warten im Kern, bis die Overlay-Seite sie abholt, und werden zurückgehalten, solange das Overlay ausgeblendet ist; so geht keiner verloren

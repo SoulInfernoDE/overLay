@@ -1,9 +1,11 @@
 //! Runs a `Power.log` through the provider and prints a summary (no player names), to
 //! check the parser against real games locally:
 //!
-//!     cargo run -p overlay-hearthstone --example replay -- path/to/Power.log [entities.json]
+//!     cargo run -p overlay-hearthstone --example replay -- path/to/Power.log [entities.json] [events.json]
 //!
-//! With a second path, all entities at the end of the log are written there as JSON.
+//! With a second path, all entities at the end of the log are written there as JSON;
+//! with a third, the game events as mods receive them (without the many entity updates).
+//! Pass `-` to skip the entities.
 
 use std::collections::BTreeMap;
 
@@ -16,9 +18,13 @@ fn main() {
     let mut state = GameState::default();
     let mut counts: BTreeMap<&str, usize> = BTreeMap::new();
     let mut records = 0;
+    let mut kept = Vec::new();
     for record in text.lines().filter_map(parse_line) {
         records += 1;
         for event in state.apply(record) {
+            if !matches!(event, GameEvent::EntityUpdate { .. }) {
+                kept.push(event.clone());
+            }
             let kind = match &event {
                 GameEvent::GameStart { game_type, .. } => {
                     println!("game start: {}", game_type.as_deref().unwrap_or("?"));
@@ -60,10 +66,15 @@ fn main() {
         info.in_game, info.turn, info.current
     );
     println!("entities: {}", state.entities_snapshot().len());
-    if let Some(out) = std::env::args().nth(2) {
+    if let Some(out) = std::env::args().nth(2).filter(|p| p != "-") {
         let json = serde_json::to_string_pretty(&state.entities_snapshot()).expect("serializable");
         std::fs::write(&out, json).expect("writable output");
         println!("entities written to {out}");
+    }
+    if let Some(out) = std::env::args().nth(3) {
+        let json = serde_json::to_string_pretty(&kept).expect("serializable");
+        std::fs::write(&out, json).expect("writable output");
+        println!("{} events written to {out}", kept.len());
     }
     println!("friendly: {}", summary(&info.friendly));
     println!("opposing: {}", summary(&info.opposing));

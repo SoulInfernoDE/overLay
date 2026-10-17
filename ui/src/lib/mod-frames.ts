@@ -133,6 +133,8 @@ export class ModFrameHost {
         return core({ method: 'game-info' });
       case 'events.entities':
         return core({ method: 'game-entities' });
+      case 'events.history':
+        return core({ method: 'game-history' });
       default:
         return Promise.reject(new Error(`${method} is not available in this window`));
     }

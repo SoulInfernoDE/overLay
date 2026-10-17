@@ -8,6 +8,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The Hearthstone provider recognizes the user by the starting cards the game reveals as they are drawn, and reports no opponent until the user is known; before, during the mulligan the user's own player could be reported as the opponent
 - The launcher comes to the front when opened by hotkey, tray or a second start while a fullscreen game is active (X11); the window manager used to keep it behind the game
 - The mod SDK sends a plain copy when a call's data cannot be cloned for `postMessage`, so reactive state of UI frameworks (Svelte, Vue) can be passed to `overlay.storage.set` and other calls; such calls used to fail silently
 - The Hearthstone provider follows the game as the client plays it (the `PowerTaskList` stream of `Power.log`) instead of as it arrives from the server: Battlegrounds combat used to arrive in full before its animation started, so mods showed results early and never saw the combat itself. Changes of players named before their name can be matched are applied once it can
@@ -19,6 +20,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Added
 
+- `overlay.events.history()`: the events of the running game so far, for mods that start in the middle of a game; the core keeps them per game
+- The replay example can write the game events as JSON, to test mods against recorded games
 - The Hearthstone provider reads `Decks.log` and tells mods which of their own decks the user plays (`GameInfo.deck` with name and deck code)
 - Hearthstone game provider (phase 5, `overlay-hearthstone`): finds the logs of the native client, Wine/Proton and Windows, extends `log.config`, follows `Power.log` across truncation and new log folders, and turns it into game events and a game summary for mods with `game.events` (`overlay.events.on`, `getInfo`, `onInfo` with TypeScript types); `replay` and `locate` examples for checking real logs locally
 - Toasts wait in the core until the overlay page takes them and stay back while the overlay is hidden, so none is lost

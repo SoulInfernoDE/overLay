@@ -11,6 +11,12 @@ ignore = [
   # Unmaintained, not vulnerable: a compile-time proc macro pulled in by gtk-rs 0.18,
   # which Tauri 2 needs on Linux. Remove once Tauri moves to newer gtk bindings.
   { id = "RUSTSEC-2024-0370", reason = "build-time only, via gtk-rs 0.18 (Tauri 2 on Linux)" },
+  # Unmaintained, not vulnerable: zvariant, zvariant_derive and zbus_names were merged
+  # into zbus 6, but tauri-plugin-single-instance 2 still uses zbus 5 (D-Bus on Linux)
+  # and no stable release has moved yet. Remove once it does.
+  { id = "RUSTSEC-2026-0370", reason = "zvariant merged into zbus 6; via tauri-plugin-single-instance 2" },
+  { id = "RUSTSEC-2026-0371", reason = "zbus_names merged into zbus 6; via tauri-plugin-single-instance 2" },
+  { id = "RUSTSEC-2026-0372", reason = "zvariant_derive merged into zbus 6; via tauri-plugin-single-instance 2" },
 ]
 
 [licenses]

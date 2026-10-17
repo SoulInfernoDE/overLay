@@ -19,6 +19,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- Der Hearthstone-Provider liest `Decks.log` und teilt Mods mit, welches seiner eigenen Decks der Nutzer spielt (`GameInfo.deck` mit Name und Deck-Code)
 - Hearthstone-Provider (Phase 5, `overlay-hearthstone`): findet die Logs des nativen Clients, von Wine/Proton und Windows, ergänzt `log.config`, folgt `Power.log` auch über Abschneiden und neue Log-Ordner hinweg und macht daraus Spielereignisse und eine Spielübersicht für Mods mit `game.events` (`overlay.events.on`, `getInfo`, `onInfo` mit TypeScript-Typen); Beispiele `replay` und `locate`, um echte Logs lokal zu prüfen
 - Hinweise warten im Kern, bis die Overlay-Seite sie abholt, und werden zurückgehalten, solange das Overlay ausgeblendet ist; so geht keiner verloren
 - Mod-SDK und Laufzeit (Phase 3): `overlay.json`-Manifeste mit strenger Prüfung (`overlay-mods`); Mods laufen als Sandbox-Frames, ausgeliefert über `mod://` mit einer CSP pro Mod, sodass die WebView nicht deklarierte Netzwerk-Hosts blockiert und dem Kern meldet; SDK `@overlay/sdk` mit Übersetzungen, Speicher, Hinweisen, Nachrichtenbus, Tastenkürzeln, Einstellungen, Spielzustand und verschiebbaren, teilweise durchklickbaren Overlay-Fenstern; Berechtigungsprüfung im Kern; Entwicklermodus für lokale Mod-Ordner; Mods in der Bibliothek des Launchers mit Mod-Seite (Berechtigungen, Netzwerk-Hosts, erzeugte Einstellungen, Desktop-Fenster); Beispiel-Mod `hello-overlay`; Anleitung für Mod-Autoren (`docs/mod-development.de.md`)

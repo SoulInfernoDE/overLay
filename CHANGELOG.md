@@ -19,6 +19,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Added
 
+- The Hearthstone provider reads `Decks.log` and tells mods which of their own decks the user plays (`GameInfo.deck` with name and deck code)
 - Hearthstone game provider (phase 5, `overlay-hearthstone`): finds the logs of the native client, Wine/Proton and Windows, extends `log.config`, follows `Power.log` across truncation and new log folders, and turns it into game events and a game summary for mods with `game.events` (`overlay.events.on`, `getInfo`, `onInfo` with TypeScript types); `replay` and `locate` examples for checking real logs locally
 - Toasts wait in the core until the overlay page takes them and stay back while the overlay is hidden, so none is lost
 - Mod SDK and runtime (phase 3): `overlay.json` manifests with strict validation (`overlay-mods`); mods run as sandboxed frames served over `mod://` with a per-mod CSP, so undeclared network hosts are blocked by the webview and reported to the core; SDK `@overlay/sdk` with translations, storage, notifications, message bus, hotkeys, settings, game state and draggable, partly click-through overlay windows; permission checks in the core; developer mode for local mod folders; mods in the launcher library with a mod page (permissions, network hosts, generated settings, desktop window); example mod `hello-overlay`; guide for mod authors (`docs/mod-development.md`)

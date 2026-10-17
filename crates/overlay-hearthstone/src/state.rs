@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, HashMap, VecDeque};
 
 use serde::Serialize;
 
+use crate::decks::Deck;
 use crate::power::{EntityRef, Record};
 
 /// Which side of the table an entity belongs to, seen from the user.
@@ -122,6 +123,8 @@ pub struct GameInfo {
     pub turn: u32,
     pub current: Option<Side>,
     pub game_entity_id: Option<u32>,
+    /// The user's deck, when they chose one of their own (`Decks.log`).
+    pub deck: Option<Deck>,
     pub friendly: SideInfo,
     pub opposing: SideInfo,
 }
@@ -196,6 +199,9 @@ pub struct GameState {
     pending: Option<Pending>,
     /// Header of the next game; it arrives before that game's `CREATE_GAME`.
     next_header: Header,
+    /// Deck chosen for the next game, and the deck of this one.
+    next_deck: Option<Deck>,
+    deck: Option<Deck>,
     /// Changes of players known only by a name that cannot be matched yet, applied once
     /// it can (the opponent's name is often used before the user's at the start).
     held: VecDeque<(String, String, String)>,
@@ -216,6 +222,8 @@ impl GameState {
             Record::CreateGame => {
                 // Kept, not taken: a reconnect starts the game again without a new header.
                 let header = self.next_header.clone();
+                // Taken, not kept: the next game may use a loaner deck or none.
+                let deck = self.next_deck.take();
                 *self = GameState {
                     in_game: true,
                     game_type: header.game_type.clone(),
@@ -223,6 +231,7 @@ impl GameState {
                     scenario_id: header.scenario_id,
                     header_names: header.names.clone(),
                     next_header: header,
+                    deck,
                     ..GameState::default()
                 };
                 events.push(GameEvent::GameCreated);
@@ -302,6 +311,7 @@ impl GameState {
             Record::PlayerName { player_id, name } => {
                 self.next_header.names.insert(player_id, name);
             }
+            Record::Deck(deck) => self.next_deck = Some(deck),
             Record::BlockStart { .. } | Record::BlockEnd => {}
         }
         events
@@ -610,6 +620,7 @@ impl GameState {
             turn: self.turn,
             current: self.current_player.map(|p| self.side(Some(p))),
             game_entity_id: self.game_entity,
+            deck: self.deck.clone(),
             friendly: side_info(Side::Friendly),
             opposing: side_info(Side::Opposing),
         }

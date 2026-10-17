@@ -192,6 +192,7 @@ Facts that matter for Flint (from the launcher's source code, 2026-10-14):
 | Game logs | `<game_dir>/Logs/Hearthstone_<YYYY_MM_DD_hh_mm_ss>/`, one folder per game start (**confirmed**; not `Bin/Logs/`). The launcher redirects Unity's stdout/stderr (`Player.log`) into its own log folder |
 | Window | Unity Linux player, normally X11/XWayland, so the same overlay backend as for Proton applies |
 | Log size limit | Once any log reaches 10 MB (`Truncating log, which has reached the size limit of 10000KB`), Hearthstone stops writing all logs. `client.config` in the game folder lifts the limit: `[Log] FileSizeLimit.Int=-1`, or flat `Log.FileSizeLimit.Int=-1` as the launcher writes its entries; the launcher keeps user entries in `~/.config/hearthstone-linux-gui/client.config.overrides` (**confirmed** 2026-10-16) |
+| `Power.log` streams | Every change is written twice: `GameState.DebugPrintPower()` on arrival from the server, `PowerTaskList.DebugPrintPower()` when the client plays it (same records and counts). In Battlegrounds a combat takes under a second in the `GameState` stream and 11–16 s in the `PowerTaskList` stream, matching the animation. The `PowerTaskList` stream sometimes names players (e.g. the innkeeper) where `GameState` writes their entity id. The game header (`DebugPrintGame`) exists only in the `GameState` stream (**confirmed** 2026-10-17) |
 
 **Other Linux trackers (references):**
 

@@ -1,4 +1,6 @@
-//! A short, hand-written game through the parser and the game model.
+//! A short, hand-written game through the parser and the game model. Like a real log,
+//! the fixture has the game twice: the `GameState` stream first, then the
+//! `PowerTaskList` stream the parser reads.
 
 use overlay_hearthstone::power::parse_line;
 use overlay_hearthstone::state::{GameEvent, GameResult, GameState, Side};
@@ -103,4 +105,48 @@ D 10:00:01.0 GameState.DebugPrintPower() - TAG_CHANGE Entity=Bob tag=CURRENT_PLA
 ";
     let (state, _) = run(log);
     assert_eq!(state.info().current, None);
+}
+
+#[test]
+fn the_next_header_does_not_change_the_running_game() {
+    // The next game's header can arrive while this game's animations still play.
+    let log = format!(
+        "{}{}",
+        include_str!("fixtures/constructed.log"),
+        "D 10:05:00.0000000 GameState.DebugPrintPower() - CREATE_GAME\n\
+         D 10:05:00.0000000 GameState.DebugPrintGame() - GameType=GT_BATTLEGROUNDS\n"
+    );
+    let (state, _) = run(&log);
+    assert_eq!(state.info().game_type.as_deref(), Some("GT_RANKED"));
+
+    let next =
+        format!("{log}D 10:05:00.0000000 PowerTaskList.DebugPrintPower() -     CREATE_GAME\n");
+    let (state, events) = run(&next);
+    assert_eq!(events.last(), Some(&GameEvent::GameCreated));
+    assert_eq!(state.info().game_type.as_deref(), Some("GT_BATTLEGROUNDS"));
+}
+
+#[test]
+fn changes_of_a_name_used_before_it_can_be_matched_are_kept() {
+    // Battlegrounds names the other side after the innkeeper, not as in the header, and
+    // uses that name before the user's, when it cannot be matched yet.
+    let power = |c: &str| format!("D 10:00:00.0 PowerTaskList.DebugPrintPower() - {c}\n");
+    let log = [
+        "D 10:00:00.0 GameState.DebugPrintPower() - CREATE_GAME\n".to_owned(),
+        "D 10:00:00.0 GameState.DebugPrintGame() - PlayerID=1, PlayerName=Me#1234\n".into(),
+        "D 10:00:00.0 GameState.DebugPrintGame() - PlayerID=2, PlayerName=Someone\n".into(),
+        power("    CREATE_GAME"),
+        power("    GameEntity EntityID=1"),
+        power("    Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]"),
+        power("    Player EntityID=3 PlayerID=2 GameAccountId=[hi=0 lo=0]"),
+        power("    TAG_CHANGE Entity=Innkeeper tag=FIRST_PLAYER value=1 "),
+        power("    TAG_CHANGE Entity=Me#1234 tag=NUM_TURNS_LEFT value=1 "),
+        power("    TAG_CHANGE Entity=Innkeeper tag=NUM_TURNS_LEFT value=1 "),
+    ]
+    .concat();
+    let (state, _) = run(&log);
+    let innkeeper = state.entity(3).expect("player entity");
+    assert_eq!(innkeeper.tag("FIRST_PLAYER"), Some("1"));
+    assert_eq!(innkeeper.tag("NUM_TURNS_LEFT"), Some("1"));
+    assert_eq!(state.entity(2).unwrap().tag("FIRST_PLAYER"), None);
 }

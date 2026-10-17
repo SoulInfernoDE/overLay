@@ -1,4 +1,9 @@
 D 10:00:00.0000000 GameState.DebugPrintPower() - CREATE_GAME
+D 10:00:00.0000000 GameState.DebugPrintGame() - GameType=GT_RANKED
+D 10:00:00.0000000 GameState.DebugPrintGame() - FormatType=FT_STANDARD
+D 10:00:00.0000000 GameState.DebugPrintGame() - ScenarioID=2
+D 10:00:00.0000000 GameState.DebugPrintGame() - PlayerID=1, PlayerName=Friendly#1234
+D 10:00:00.0000000 GameState.DebugPrintGame() - PlayerID=2, PlayerName=UNKNOWN HUMAN PLAYER
 D 10:00:00.0000000 GameState.DebugPrintPower() -     GameEntity EntityID=1
 D 10:00:00.0000000 GameState.DebugPrintPower() -         tag=CARDTYPE value=GAME
 D 10:00:00.0000000 GameState.DebugPrintPower() -     Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]
@@ -20,12 +25,6 @@ D 10:00:00.0000000 GameState.DebugPrintPower() - FULL_ENTITY - Creating ID=7 Car
 D 10:00:00.0000000 GameState.DebugPrintPower() -     tag=CONTROLLER value=1
 D 10:00:00.0000000 GameState.DebugPrintPower() -     tag=CARDTYPE value=HERO
 D 10:00:00.0000000 GameState.DebugPrintPower() -     tag=ZONE value=PLAY
-D 10:00:00.0000000 GameState.DebugPrintGame() - GameType=GT_RANKED
-D 10:00:00.0000000 GameState.DebugPrintGame() - FormatType=FT_STANDARD
-D 10:00:00.0000000 GameState.DebugPrintGame() - ScenarioID=2
-D 10:00:00.0000000 GameState.DebugPrintGame() - PlayerID=1, PlayerName=Friendly#1234
-D 10:00:00.0000000 GameState.DebugPrintGame() - PlayerID=2, PlayerName=UNKNOWN HUMAN PLAYER
-D 10:00:00.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STEP value=BEGIN_MULLIGAN
 D 10:00:01.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STEP value=BEGIN_MULLIGAN
 D 10:00:02.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=Friendly#1234 tag=CURRENT_PLAYER value=1
 D 10:00:02.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=TURN value=1
@@ -45,3 +44,44 @@ D 10:00:06.0000000 GameState.DebugPrintPower() - BLOCK_END
 D 10:00:07.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=Friendly#1234 tag=PLAYSTATE value=WON
 D 10:00:07.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=Opponent#9999 tag=PLAYSTATE value=LOST
 D 10:00:07.0000000 GameState.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STATE value=COMPLETE
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     CREATE_GAME
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     GameEntity EntityID=1
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -         tag=CARDTYPE value=GAME
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -         tag=CARDTYPE value=PLAYER
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     Player EntityID=3 PlayerID=2 GameAccountId=[hi=2 lo=2]
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -         tag=CARDTYPE value=PLAYER
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() - FULL_ENTITY - Creating ID=4 CardID=CS2_029
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CONTROLLER value=1
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CARDTYPE value=SPELL
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=ZONE value=HAND
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=ZONE_POSITION value=1
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() - FULL_ENTITY - Creating ID=5 CardID=
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CONTROLLER value=1
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=ZONE value=DECK
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() - FULL_ENTITY - Creating ID=6 CardID=
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CONTROLLER value=2
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=ZONE value=HAND
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() - FULL_ENTITY - Creating ID=7 CardID=HERO_08
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CONTROLLER value=1
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=CARDTYPE value=HERO
+D 10:00:00.0000000 PowerTaskList.DebugPrintPower() -     tag=ZONE value=PLAY
+D 10:00:01.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STEP value=BEGIN_MULLIGAN
+D 10:00:02.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=Friendly#1234 tag=CURRENT_PLAYER value=1
+D 10:00:02.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=TURN value=1
+D 10:00:02.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_READY
+D 10:00:03.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=[entityName=UNKNOWN ENTITY [cardType=INVALID] id=5 zone=DECK zonePos=0 cardId= player=1] tag=ZONE value=HAND
+D 10:00:04.0000000 PowerTaskList.DebugPrintPower() - BLOCK_START BlockType=PLAY Entity=[entityName=Fireball id=4 zone=HAND zonePos=1 cardId=CS2_029 player=1] EffectCardId=System.Collections.Generic.List`1[System.String] EffectIndex=0 Target=0 SubOption=-1
+D 10:00:04.0000000 PowerTaskList.DebugPrintPower() -     TAG_CHANGE Entity=[entityName=Fireball id=4 zone=HAND zonePos=1 cardId=CS2_029 player=1] tag=ZONE value=PLAY
+D 10:00:04.0000000 PowerTaskList.DebugPrintPower() - BLOCK_END
+D 10:00:05.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=Opponent#9999 tag=CURRENT_PLAYER value=1
+D 10:00:05.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=TURN value=2
+D 10:00:05.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STEP value=MAIN_READY
+D 10:00:06.0000000 PowerTaskList.DebugPrintPower() - BLOCK_START BlockType=PLAY Entity=[entityName=UNKNOWN ENTITY [cardType=INVALID] id=6 zone=HAND zonePos=1 cardId= player=2] EffectCardId=System.Collections.Generic.List`1[System.String] EffectIndex=0 Target=0 SubOption=-1
+D 10:00:06.0000000 PowerTaskList.DebugPrintPower() -     SHOW_ENTITY - Updating Entity=[entityName=UNKNOWN ENTITY [cardType=INVALID] id=6 zone=HAND zonePos=1 cardId= player=2] CardID=CS2_182
+D 10:00:06.0000000 PowerTaskList.DebugPrintPower() -         tag=CARDTYPE value=MINION
+D 10:00:06.0000000 PowerTaskList.DebugPrintPower() -         tag=ZONE value=PLAY
+D 10:00:06.0000000 PowerTaskList.DebugPrintPower() - BLOCK_END
+D 10:00:07.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=Friendly#1234 tag=PLAYSTATE value=WON
+D 10:00:07.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=Opponent#9999 tag=PLAYSTATE value=LOST
+D 10:00:07.0000000 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=GameEntity tag=STATE value=COMPLETE

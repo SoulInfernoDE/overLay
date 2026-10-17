@@ -139,4 +139,4 @@ Jedes Fenster läuft als Sandbox-Frame mit eigenem, undurchsichtigem Ursprung:
 3. Der Mod erscheint in der Bibliothek mit dem Abzeichen *Entwicklung*; ein Entwickler-Ordner hat Vorrang vor einem installierten Mod mit derselben ID.
 4. Nach einem neuen Build: *Mods neu laden* in den Entwickler-Einstellungen.
 
-Starte overLay mit `OVERLAY_DEBUG=1`, um jede Dateianfrage deines Mods und jede Änderung des Spielfensters zu protokollieren.
+Starte overLay mit `OVERLAY_DEBUG=1`, um jede Dateianfrage deines Mods, jede Änderung des Spielfensters und die klickbaren Bereiche des Overlays zu protokollieren (hilfreich, wenn Klicks dein Fenster nicht erreichen oder es dort erreichen, wo sie ans Spiel gehen sollten).

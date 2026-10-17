@@ -146,7 +146,7 @@ Flint gets its own repository and is installed through the index, so the very fi
 - [x] **Battlegrounds overlay:** tavern tier and gold, own board, heroes of the lobby with health and placement (leaderboard), the last opponent's board, available and banned tribes, minion list by tier, tribe and mechanic (card data from HearthstoneJSON), session recap (games, placements)
 - [x] **Own deck** overlay: card tiles (art crop, mana cost, count, rarity), drawn cards greyed out, remaining cards, draw probabilities *(2026-10-17: the deck list comes from `Decks.log` for the user's own decks; loaner decks show the cards seen so far; checked in practice games)*
 - [x] **Opponent** overlay: played cards, hand with draw turn, buffs and known cards *(2026-10-17: checked in practice games; buffs show which card changed a card in hand, as the new stats of hidden cards are not logged)*
-- [ ] **Secrets helper**, counters (total attack, fatigue, corpses, spell schools …), turn timer *(2026-10-17: counters for board attack, fatigue, corpses, spells played and spell schools and the turn timer are done; the secrets helper is open)*
+- [ ] **Secrets helper**, counters (total attack, fatigue, corpses, spell schools …), turn timer *(2026-10-17: counters and turn timer checked in practice games; the secrets helper is covered by tests, with trigger rules for the Standard secrets, and still needs a live check against an opponent who plays secrets)*
 - [ ] Main window (Firestone-like): navigation on the left, **Battlegrounds** (games, heroes, placements), **Decks** section (deck code import, local stats per deck, matchups), **Replays** (local list)
 - [ ] Settings: size, opacity, position, which zones are visible
 - [ ] First public **alpha release** of overLay plus the mod

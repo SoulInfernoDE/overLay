@@ -97,7 +97,7 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 | `overlay.hotkeys.on(id, cb)` | Deine deklarierten Tastenkürzel (`hotkeys`) |
 | `overlay.settings.get()`, `onChange(cb)` | Werte deiner Einstellungen |
 | `overlay.game.getState()`, `onChange(cb)` | Spiel und Fenstergröße (`game.state`) |
-| `overlay.events.on(cb)`, `getInfo()`, `onInfo(cb)` | Live-Ereignisse und Spielübersicht (`game.events`), siehe unten |
+| `overlay.events.on(cb)`, `history()`, `getInfo()`, `onInfo(cb)` | Live-Ereignisse, bisherige Ereignisse und Spielübersicht (`game.events`), siehe unten |
 | `overlay.windows.makeDraggable(el)` | Nutzer können das Overlay-Fenster an `el` verschieben; overLay speichert die Position pro Spiel und Auflösung |
 | `overlay.windows.setInteractiveRegions(rects)` | Nur diese Bereiche nehmen Klicks an, der Rest geht ans Spiel; `null` = ganzes Fenster |
 | `overlay.windows.setClickThrough(true)` | Jeder Klick geht ans Spiel (rein optische Overlays) |
@@ -120,7 +120,7 @@ Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` lie
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
 | `game-created` | – eine neue Partie beginnt |
 
-`overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet. Spielt der Nutzer eines seiner eigenen Decks, enthält `deck` dessen Namen und Deck-Code (aus Hearthstones `Decks.log`); bei Leihdecks und in Modi ohne Deck ist es null.
+`overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet; `overlay.events.history()` liefert die bisherigen Ereignisse der Partie (ohne Entitäts-Updates), damit du auch nachholen kannst, was vorher geschah. Spielt der Nutzer eines seiner eigenen Decks, enthält `deck` dessen Namen und Deck-Code (aus Hearthstones `Decks.log`); bei Leihdecks und in Modi ohne Deck ist es null.
 
 Für alles andere hält das SDK einen **Spiegel aller Entitäten der Partie mit allen Tags**: `overlay.events.entities()` (eine schreibgeschützte `Map` nach Entitäts-ID) und `onEntitiesChanged(cb)` (die im letzten Paket geänderten IDs). Er wird beim Start deines Fensters vollständig geladen und alle 100 ms paketweise aktualisiert. Dort stecken die Schlachtfeld-Daten, z. B. `PLAYER_TECH_LEVEL` (Tavernenstufe) und `RESOURCES` an der Spieler-Entität, `PLAYER_LEADERBOARD_PLACE` an den Helden, `BACON_CURRENT_COMBAT_PLAYER_ID` für den aktuellen Gegner. Karten-IDs sind Hearthstones eigene IDs; Namen und Bilder lädst du aus einer Kartendatenbank, die du in `network` deklarierst (z. B. `api.hearthstonejson.com`, `art.hearthstonejson.com`).
 

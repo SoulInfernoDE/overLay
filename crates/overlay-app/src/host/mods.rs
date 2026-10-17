@@ -268,6 +268,10 @@ pub fn call(app: &AppHandle, mod_id: &str, call: ModCall) -> Result<serde_json::
                 .entities()
                 .unwrap_or(serde_json::Value::Null))
         }
+        ModCall::GameHistory => {
+            require(Permission::GameEvents)?;
+            Ok(app.state::<crate::host::providers::Providers>().history())
+        }
         ModCall::GameInfo => {
             require(Permission::GameEvents)?;
             Ok(app

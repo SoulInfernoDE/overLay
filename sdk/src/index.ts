@@ -297,6 +297,14 @@ export const overlay = {
     onEntitiesChanged(listener: (entityIds: number[]) => void): () => void {
       return on('entities', (data) => listener(data as number[]));
     },
+    /**
+     * Events of the running game so far, oldest first, without entity updates. Use it
+     * when your window starts in the middle of a game and needs to know what happened
+     * (e.g. when cards were drawn); live events keep coming through `on`.
+     */
+    async history(): Promise<HearthstoneEvent[]> {
+      return (await call<HearthstoneEvent[] | null>('events.history')) ?? [];
+    },
     /** The current game summary, or null outside a game. */
     getInfo(): Promise<GameInfo | null> {
       return call<GameInfo | null>('events.info');

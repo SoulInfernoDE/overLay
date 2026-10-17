@@ -12,7 +12,7 @@ use std::time::Duration;
 
 use overlay_games::RunningGame;
 use overlay_hearthstone::locate::locate;
-use overlay_hearthstone::{Provider, client_config, log_config};
+use overlay_hearthstone::{GameEvent, Provider, client_config, log_config};
 use overlay_i18n::FluentArgs;
 use overlay_ipc::CoreMessage;
 use overlay_mods::Permission;
@@ -28,6 +28,8 @@ const LOCATE_ATTEMPTS: u32 = 30;
 /// Events go to the UI processes in batches of at most this many (a Battlegrounds game
 /// read from the start yields thousands at once).
 const BATCH: usize = 1000;
+/// Events of one game kept for mods that start later (a long game has a few thousand).
+const HISTORY_LIMIT: usize = 20_000;
 
 #[derive(Default)]
 pub struct Providers {
@@ -36,11 +38,34 @@ pub struct Providers {
     info: Mutex<Option<serde_json::Value>>,
     /// The provider of the running game, for entity snapshots.
     current: Mutex<Option<Arc<Mutex<Provider>>>>,
+    /// Events of the running game without entity updates, oldest first.
+    history: Mutex<Vec<GameEvent>>,
 }
 
 impl Providers {
     pub fn info(&self) -> Option<serde_json::Value> {
         self.info.lock().expect("info lock").clone()
+    }
+
+    /// Events of the running game so far, for mods that start in the middle of it.
+    pub fn history(&self) -> serde_json::Value {
+        serde_json::to_value(&*self.history.lock().expect("history lock")).unwrap_or_default()
+    }
+
+    fn remember(&self, events: &[GameEvent]) {
+        let mut history = self.history.lock().expect("history lock");
+        for event in events {
+            match event {
+                GameEvent::GameCreated => history.clear(),
+                GameEvent::EntityUpdate { .. } => continue,
+                _ => {}
+            }
+            history.push(event.clone());
+        }
+        if history.len() > HISTORY_LIMIT {
+            let excess = history.len() - HISTORY_LIMIT;
+            history.drain(..excess);
+        }
     }
 
     /// All entities of the running game, or `None` outside a game.
@@ -86,6 +111,7 @@ pub fn stop(app: &AppHandle, game: &RunningGame) {
     }
     *providers.info.lock().expect("info lock") = None;
     *providers.current.lock().expect("current lock") = None;
+    providers.history.lock().expect("history lock").clear();
 }
 
 fn run_hearthstone(app: &AppHandle, game: &RunningGame, stop: &AtomicBool) {
@@ -145,6 +171,7 @@ fn run_hearthstone(app: &AppHandle, game: &RunningGame, stop: &AtomicBool) {
             // Nothing new (e.g. in the menus): the summary cannot have changed either.
             Ok(events) if events.is_empty() => {}
             Ok(events) => {
+                providers.remember(&events);
                 for batch in events.chunks(BATCH) {
                     processes.broadcast(&CoreMessage::ModEvent {
                         mod_id: None,

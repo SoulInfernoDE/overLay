@@ -340,13 +340,17 @@ impl GameState {
         let zone = entity.tag("ZONE").map(str::to_owned);
         let card_id = entity.card_id.clone();
         let controller = entity.number("CONTROLLER");
-        // The user's own starting cards are the only ones created face up in the hand.
-        if pending.kind == PendingKind::Created
-            && self.friendly.is_none()
-            && zone.as_deref() == Some("HAND")
-            && card_id.is_some()
-        {
-            self.friendly = controller;
+        // The user is the player whose cards the game shows: their starting cards are
+        // revealed as they are drawn from the deck (the opponent's never are), and in
+        // some modes created face up in the hand.
+        if self.friendly.is_none() && card_id.is_some() {
+            let drawn_and_shown = pending.kind == PendingKind::Revealed
+                && pending.zone_before.as_deref() == Some("DECK");
+            let created_shown =
+                pending.kind == PendingKind::Created && zone.as_deref() == Some("HAND");
+            if drawn_and_shown || created_shown {
+                self.friendly = controller;
+            }
         }
         let side = self.side(controller);
         if pending.kind == PendingKind::Revealed
@@ -574,11 +578,10 @@ impl GameState {
         let side_info = |side: Side| -> SideInfo {
             let player_id = match side {
                 Side::Friendly => self.friendly,
+                // Unknown until the user is: any other guess may be the user.
                 _ => self
-                    .players
-                    .keys()
-                    .copied()
-                    .find(|p| Some(*p) != self.friendly),
+                    .friendly
+                    .and_then(|f| self.players.keys().copied().find(|p| *p != f)),
             };
             let mut info = SideInfo {
                 player_id,

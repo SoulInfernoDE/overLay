@@ -150,3 +150,43 @@ fn changes_of_a_name_used_before_it_can_be_matched_are_kept() {
     assert_eq!(innkeeper.tag("NUM_TURNS_LEFT"), Some("1"));
     assert_eq!(state.entity(2).unwrap().tag("FIRST_PLAYER"), None);
 }
+
+#[test]
+fn the_user_is_the_player_whose_draws_are_shown() {
+    // The user goes first, so the opponent gets the Coin, created face up in their hand.
+    let power = |c: &str| format!("D 10:00:00.0 PowerTaskList.DebugPrintPower() - {c}\n");
+    let before = [
+        power("    CREATE_GAME"),
+        power("    GameEntity EntityID=1"),
+        power("    Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]"),
+        power("    Player EntityID=3 PlayerID=2 GameAccountId=[hi=2 lo=2]"),
+        power("FULL_ENTITY - Creating ID=4 CardID="),
+        power("    tag=CONTROLLER value=1"),
+        power("    tag=ZONE value=DECK"),
+        power("FULL_ENTITY - Creating ID=5 CardID="),
+        power("    tag=CONTROLLER value=2"),
+        power("    tag=ZONE value=DECK"),
+        // The opponent draws first; their card stays hidden.
+        power("TAG_CHANGE Entity=5 tag=ZONE value=HAND"),
+    ]
+    .concat();
+    let (state, _) = run(&before);
+    assert_eq!(state.info().opposing.player_entity_id, None);
+
+    let after = [
+        before,
+        power("SHOW_ENTITY - Updating Entity=[entityName=UNKNOWN ENTITY [cardType=INVALID] id=4 zone=DECK zonePos=0 cardId= player=1] CardID=CS2_029"),
+        power("    tag=CONTROLLER value=1"),
+        power("    tag=CARDTYPE value=SPELL"),
+        power("TAG_CHANGE Entity=4 tag=ZONE value=HAND"),
+        power("FULL_ENTITY - Creating ID=6 CardID=GAME_005"),
+        power("    tag=CONTROLLER value=2"),
+        power("    tag=CARDTYPE value=SPELL"),
+        power("    tag=ZONE value=HAND"),
+    ]
+    .concat();
+    let (state, _) = run(&after);
+    let info = state.info();
+    assert_eq!(info.friendly.player_entity_id, Some(2));
+    assert_eq!(info.opposing.player_entity_id, Some(3));
+}

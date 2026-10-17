@@ -118,6 +118,7 @@ Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` lie
 | `zone-change` | `entity_id`, `card_id` (null, solange verdeckt), `side`, `from` (null bei neuen Karten), `to` (`deck`, `hand`, `play`, `graveyard`, `secret`, `setaside` …) |
 | `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
+| `attack` | `attacker`, `defender` (Entitäts-IDs), `side` des Angreifers |
 | `game-created` | – eine neue Partie beginnt |
 
 `overlay.events.getInfo()` liefert eine Übersicht der laufenden Partie (Modus, Zug und pro Seite: Held, Hand, Brett, Geheimnisse, Friedhof, Deckgröße), `onInfo(cb)` meldet Änderungen. Nutze das, wenn dein Fenster mitten in einer Partie startet; `overlay.events.history()` liefert die bisherigen Ereignisse der Partie (ohne Entitäts-Updates), damit du auch nachholen kannst, was vorher geschah. Spielt der Nutzer eines seiner eigenen Decks, enthält `deck` dessen Namen und Deck-Code (aus Hearthstones `Decks.log`); bei Leihdecks und in Modi ohne Deck ist es null.

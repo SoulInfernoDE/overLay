@@ -36,6 +36,8 @@ export type GameEvent =
       data: { entity_id: number; card_id: string; side: Side; zone: Zone | null };
     }
   | { name: 'game-end'; data: { result: 'win' | 'loss' | 'tie' | 'unknown' } }
+  /** A character attacks; `side` is the attacker's. */
+  | { name: 'attack'; data: { attacker: number; defender: number | null; side: Side } }
   /** A new game begins (the entity mirror was cleared). */
   | { name: 'game-created' };
 

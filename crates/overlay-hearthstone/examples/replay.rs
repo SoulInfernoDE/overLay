@@ -38,6 +38,7 @@ fn main() {
                     println!("game end: {result:?}");
                     "game-end"
                 }
+                GameEvent::Attack { .. } => "attack",
                 GameEvent::GameCreated => "game-created",
                 GameEvent::EntityUpdate { .. } => "entity-update",
             };

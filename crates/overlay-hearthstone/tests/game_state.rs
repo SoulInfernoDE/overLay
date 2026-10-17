@@ -190,3 +190,38 @@ fn the_user_is_the_player_whose_draws_are_shown() {
     assert_eq!(info.friendly.player_entity_id, Some(2));
     assert_eq!(info.opposing.player_entity_id, Some(3));
 }
+
+#[test]
+fn attacks_become_events() {
+    let power = |c: &str| format!("D 10:00:00.0 PowerTaskList.DebugPrintPower() - {c}\n");
+    let log = [
+        power("    CREATE_GAME"),
+        power("    GameEntity EntityID=1"),
+        power("    Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]"),
+        power("    Player EntityID=3 PlayerID=2 GameAccountId=[hi=2 lo=2]"),
+        power("FULL_ENTITY - Creating ID=10 CardID=CS2_182"),
+        power("    tag=CONTROLLER value=1"),
+        power("    tag=CARDTYPE value=MINION"),
+        power("    tag=ZONE value=PLAY"),
+        power("FULL_ENTITY - Creating ID=11 CardID=HERO_08"),
+        power("    tag=CONTROLLER value=2"),
+        power("    tag=CARDTYPE value=HERO"),
+        power("    tag=ZONE value=PLAY"),
+        power("BLOCK_START BlockType=ATTACK Entity=[entityName=Ogre id=10 zone=PLAY zonePos=1 cardId=CS2_182 player=1] EffectCardId=System.Collections.Generic.List`1[System.String] EffectIndex=0 Target=[entityName=Jaina id=11 zone=PLAY zonePos=0 cardId=HERO_08 player=2] SubOption=-1 "),
+        power("BLOCK_END"),
+    ]
+    .concat();
+    let (_, events) = run(&log);
+    let attack = events
+        .iter()
+        .find(|e| matches!(e, GameEvent::Attack { .. }))
+        .expect("attack event");
+    assert!(matches!(
+        attack,
+        GameEvent::Attack {
+            attacker: 10,
+            defender: Some(11),
+            ..
+        }
+    ));
+}

@@ -4,7 +4,8 @@
 //!     cargo run -p overlay-hearthstone --example replay -- path/to/Power.log [entities.json] [events.json]
 //!
 //! With a second path, all entities at the end of the log are written there as JSON;
-//! with a third, the game events as mods receive them (without the many entity updates).
+//! with a third, the game events as mods receive them (without the many entity updates,
+//! unless `REPLAY_ALL_EVENTS=1` is set, e.g. to rebuild the state step by step).
 //! Pass `-` to skip the entities.
 
 use std::collections::BTreeMap;
@@ -19,10 +20,11 @@ fn main() {
     let mut counts: BTreeMap<&str, usize> = BTreeMap::new();
     let mut records = 0;
     let mut kept = Vec::new();
+    let all_events = std::env::var_os("REPLAY_ALL_EVENTS").is_some();
     for record in text.lines().filter_map(parse_line) {
         records += 1;
         for event in state.apply(record) {
-            if !matches!(event, GameEvent::EntityUpdate { .. }) {
+            if all_events || !matches!(event, GameEvent::EntityUpdate { .. }) {
                 kept.push(event.clone());
             }
             let kind = match &event {

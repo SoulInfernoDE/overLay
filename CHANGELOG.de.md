@@ -20,6 +20,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- `REPLAY_ALL_EVENTS=1` lässt das Replay-Beispiel alle Ereignisse samt Entitäts-Updates schreiben, damit Mods eine aufgezeichnete Partie Schritt für Schritt nachbauen können
 - Spielereignis `attack` (Angreifer, Verteidiger und Seite des Angreifers), z. B. für Geheimnis-Helfer
 - `overlay.events.history()`: die bisherigen Ereignisse der laufenden Partie, für Mods, die mitten in einer Partie starten; der Kern merkt sie sich pro Partie
 - Das Replay-Beispiel kann die Spielereignisse als JSON schreiben, um Mods an aufgezeichneten Partien zu testen

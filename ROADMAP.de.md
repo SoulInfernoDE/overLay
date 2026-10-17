@@ -146,7 +146,7 @@ Flint bekommt ein eigenes Repository und wird über den Index installiert. So du
 - [x] **Schlachtfeld-Overlay:** Tavernenstufe und Gold, eigenes Brett, Helden der Lobby mit Leben und Platzierung (Rangliste), Brett des letzten Gegners, verfügbare und gebannte Völker, Dienerliste nach Stufe, Volk und Mechanik (Kartendaten von HearthstoneJSON), Sitzungsrückblick (Partien, Platzierungen)
 - [x] Overlay **eigenes Deck**: Kartenkacheln (Bildausschnitt, Manakosten, Anzahl, Seltenheit), gezogene Karten ausgegraut, Restkarten, Ziehwahrscheinlichkeiten *(2026-10-17: Die Deckliste kommt bei eigenen Decks aus `Decks.log`; Leihdecks zeigen die bisher gesehenen Karten; in Übungspartien geprüft)*
 - [x] Overlay **Gegner**: gespielte Karten, Hand mit Ziehrunde, Buffs und bekannten Karten *(2026-10-17: in Übungspartien geprüft; Buffs zeigen, welche Karte eine Handkarte verändert hat, da die neuen Werte verdeckter Karten nicht im Log stehen)*
-- [ ] **Secrets-Helfer**, Zähler (Gesamtangriff, Fatigue, Leichen, Zauberschulen …), Rundentimer
+- [ ] **Secrets-Helfer**, Zähler (Gesamtangriff, Fatigue, Leichen, Zauberschulen …), Rundentimer *(2026-10-17: Zähler für Angriff auf dem Brett, Erschöpfung, Leichen und gespielte Zauber sind fertig; Geheimnis-Helfer, Zauberschulen und Zugtimer sind offen)*
 - [ ] Hauptfenster (Firestone-artig): Navigation links, **Schlachtfeld** (Partien, Helden, Platzierungen), Bereich **Decks** (Deckcode-Import, lokale Stats pro Deck, Matchups), **Replays** (lokale Liste)
 - [ ] Einstellungen: Größe, Deckkraft, Position, welche Zonen sichtbar sind
 - [ ] Erstes öffentliches **Alpha-Release** von overLay plus Mod

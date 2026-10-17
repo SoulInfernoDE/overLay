@@ -2,6 +2,7 @@
 //! single window that talks to the core over stdin/stdout (see `overlay-ipc`).
 //! Nothing in a UI process may print to stdout; logs go to stderr.
 
+mod activate;
 mod launcher;
 mod mods;
 mod overlay;

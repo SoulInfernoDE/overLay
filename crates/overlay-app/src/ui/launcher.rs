@@ -28,6 +28,8 @@ pub fn run() {
                 .decorations(false)
                 .center()
                 .build()?;
+            // Opened by hotkey or tray while a game is in front.
+            super::activate::raise_soon();
             Ok(())
         })
         // Closing the window ends the process (Tauri's default when the last window closes).
@@ -48,6 +50,7 @@ fn on_message(app: &AppHandle, message: CoreMessage) {
                 let _ = window.unminimize();
                 let _ = window.set_focus();
             }
+            super::activate::raise_soon();
         }
         CoreMessage::Close => app.exit(0),
         CoreMessage::ModsChanged { list } => {

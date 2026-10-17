@@ -62,6 +62,10 @@ pub fn set_interactive_regions(
         .iter()
         .map(|r| DeviceRect::from_css(r, device_pixel_ratio))
         .collect();
+    // `OVERLAY_DEBUG=1` logs the clickable areas (for bug reports about lost clicks).
+    if std::env::var_os("OVERLAY_DEBUG").is_some() {
+        eprintln!("[overlay-ui] clickable areas: {device:?}");
+    }
     *regions.0.lock().expect("regions lock") = device.clone();
     apply_input_shape(&window, device)
 }

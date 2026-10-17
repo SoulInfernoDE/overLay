@@ -139,4 +139,4 @@ Each window runs as a sandboxed frame with its own opaque origin:
 3. The mod appears in the library with the *Developer* badge; a developer folder wins over an installed mod with the same id.
 4. After a rebuild: *Reload mods* in the developer settings.
 
-Start overLay with `OVERLAY_DEBUG=1` to log every file request of your mod and every change of the game window.
+Start overLay with `OVERLAY_DEBUG=1` to log every file request of your mod, every change of the game window and the clickable areas of the overlay (useful when clicks do not reach your window, or reach it where they should go to the game).

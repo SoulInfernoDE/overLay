@@ -72,6 +72,13 @@ pub enum GameEvent {
     GameEnd {
         result: GameResult,
     },
+    /// A character attacks; `side` is the attacker's. Secrets and other reactions to the
+    /// attack follow as separate changes.
+    Attack {
+        attacker: u32,
+        defender: Option<u32>,
+        side: Side,
+    },
     /// A new game begins; mods drop what they know about the previous one.
     GameCreated,
     /// Low-level: an entity was created or tags of it changed (`tags` holds only what
@@ -312,6 +319,21 @@ impl GameState {
                 self.next_header.names.insert(player_id, name);
             }
             Record::Deck(deck) => self.next_deck = Some(deck),
+            Record::BlockStart {
+                block_type,
+                entity,
+                target,
+            } if block_type == "ATTACK" => {
+                if let Some(attacker) = self.resolve(&entity) {
+                    let defender = target.and_then(|t| self.resolve(&t));
+                    let controller = self.entity(attacker).and_then(|e| e.number("CONTROLLER"));
+                    events.push(GameEvent::Attack {
+                        attacker,
+                        defender,
+                        side: self.side(controller),
+                    });
+                }
+            }
             Record::BlockStart { .. } | Record::BlockEnd => {}
         }
         events

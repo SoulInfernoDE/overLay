@@ -20,6 +20,7 @@ Alle nennenswerten Änderungen werden hier festgehalten. Das Format folgt [Keep 
 
 ### Hinzugefügt
 
+- Spielereignis `attack` (Angreifer, Verteidiger und Seite des Angreifers), z. B. für Geheimnis-Helfer
 - `overlay.events.history()`: die bisherigen Ereignisse der laufenden Partie, für Mods, die mitten in einer Partie starten; der Kern merkt sie sich pro Partie
 - Das Replay-Beispiel kann die Spielereignisse als JSON schreiben, um Mods an aufgezeichneten Partien zu testen
 - Der Hearthstone-Provider liest `Decks.log` und teilt Mods mit, welches seiner eigenen Decks der Nutzer spielt (`GameInfo.deck` mit Name und Deck-Code)

@@ -20,6 +20,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Added
 
+- Game event `attack` (attacker, defender and the attacker's side), e.g. for secret helpers
 - `overlay.events.history()`: the events of the running game so far, for mods that start in the middle of a game; the core keeps them per game
 - The replay example can write the game events as JSON, to test mods against recorded games
 - The Hearthstone provider reads `Decks.log` and tells mods which of their own decks the user plays (`GameInfo.deck` with name and deck code)

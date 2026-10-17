@@ -108,7 +108,7 @@ Pass resolutions and other numbers that must not be grouped as strings (`String(
 
 ## Game events (Hearthstone)
 
-With `game.events`, a mod receives what the host reads from Hearthstone's `Power.log`. Types: `import type { Hearthstone } from '@overlay/sdk'`.
+With `game.events`, a mod receives what the host reads from Hearthstone's `Power.log`, in step with what the player sees: changes arrive as the client plays them, so a Battlegrounds combat unfolds over its animation instead of arriving in full beforehand. Types: `import type { Hearthstone } from '@overlay/sdk'`.
 
 | Event | Data |
 |---|---|

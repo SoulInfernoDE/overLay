@@ -108,7 +108,7 @@ document.body.textContent = t('hello', { game: overlay.game.getState()?.gameName
 
 ## Spielereignisse (Hearthstone)
 
-Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` liest. Typen: `import type { Hearthstone } from '@overlay/sdk'`.
+Mit `game.events` bekommt ein Mod, was der Host aus Hearthstones `Power.log` liest, und zwar im Takt dessen, was der Spieler sieht: Änderungen kommen, wenn der Client sie abspielt, sodass sich ein Schlachtfeld-Kampf über seine Animation entfaltet, statt vorher vollständig anzukommen. Typen: `import type { Hearthstone } from '@overlay/sdk'`.
 
 | Ereignis | Daten |
 |---|---|

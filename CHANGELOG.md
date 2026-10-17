@@ -8,6 +8,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 
+- The Hearthstone provider follows the game as the client plays it (the `PowerTaskList` stream of `Power.log`) instead of as it arrives from the server: Battlegrounds combat used to arrive in full before its animation started, so mods showed results early and never saw the combat itself. Changes of players named before their name can be matched are applied once it can
 - Overlay windows of mods are kept inside the overlay: a manifest or stored position outside the game window (e.g. after switching to windowed mode) no longer hides the window, and dragging starts from where it is shown
 - The Hearthstone provider lifts the game's log size limit in `client.config` (and in hearthstone-linux-gui's overrides): Hearthstone stopped writing all logs once one reached 10 MB, so the end of longer games was never seen
 - The overlay stays visible while the game is shown and no other active window covers it, so working on another monitor keeps it (it used to hide whenever the game lost focus)

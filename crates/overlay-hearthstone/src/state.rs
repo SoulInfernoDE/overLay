@@ -4,7 +4,7 @@
 //! other modes (Battlegrounds tavern, leaderboard, buddies …) are derived from the same
 //! model later, without changing the parser.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, VecDeque};
 
 use serde::Serialize;
 
@@ -165,6 +165,15 @@ struct Pending {
     zone_before: Option<String>,
 }
 
+/// Game header from `DebugPrintGame`, collected before the game it belongs to starts.
+#[derive(Clone, Debug, Default)]
+struct Header {
+    game_type: Option<String>,
+    format: Option<String>,
+    scenario_id: Option<u32>,
+    names: BTreeMap<u32, String>,
+}
+
 #[derive(Debug, Default)]
 pub struct GameState {
     entities: HashMap<u32, Entity>,
@@ -185,7 +194,15 @@ pub struct GameState {
     turn: u32,
     current_player: Option<u32>,
     pending: Option<Pending>,
+    /// Header of the next game; it arrives before that game's `CREATE_GAME`.
+    next_header: Header,
+    /// Changes of players known only by a name that cannot be matched yet, applied once
+    /// it can (the opponent's name is often used before the user's at the start).
+    held: VecDeque<(String, String, String)>,
 }
+
+/// Changes held for unmatched names; Battlegrounds uses names that never match a player.
+const HELD_LIMIT: usize = 64;
 
 impl GameState {
     /// Applies one record and returns the events it causes.
@@ -195,9 +212,17 @@ impl GameState {
             self.finish_pending(&mut events);
         }
         match record {
+            Record::HeaderStart => self.next_header = Header::default(),
             Record::CreateGame => {
+                // Kept, not taken: a reconnect starts the game again without a new header.
+                let header = self.next_header.clone();
                 *self = GameState {
                     in_game: true,
+                    game_type: header.game_type.clone(),
+                    format: header.format.clone(),
+                    scenario_id: header.scenario_id,
+                    header_names: header.names.clone(),
+                    next_header: header,
                     ..GameState::default()
                 };
                 events.push(GameEvent::GameCreated);
@@ -260,16 +285,22 @@ impl GameState {
                     self.entity_mut(id).tags.insert(tag, value);
                 }
             }
-            Record::TagChange { entity, tag, value } => {
-                if let Some(id) = self.resolve(&entity) {
+            Record::TagChange { entity, tag, value } => match (self.resolve(&entity), entity) {
+                (Some(id), EntityRef::Name(name)) => {
+                    for (tag, value) in self.take_held(&name) {
+                        self.tag_change(id, tag, value, &mut events);
+                    }
                     self.tag_change(id, tag, value, &mut events);
                 }
-            }
-            Record::GameType(value) => self.game_type = Some(value),
-            Record::FormatType(value) => self.format = Some(value),
-            Record::ScenarioId(value) => self.scenario_id = Some(value),
+                (Some(id), _) => self.tag_change(id, tag, value, &mut events),
+                (None, EntityRef::Name(name)) => self.hold(name, tag, value),
+                (None, _) => {}
+            },
+            Record::GameType(value) => self.next_header.game_type = Some(value),
+            Record::FormatType(value) => self.next_header.format = Some(value),
+            Record::ScenarioId(value) => self.next_header.scenario_id = Some(value),
             Record::PlayerName { player_id, name } => {
-                self.header_names.insert(player_id, name);
+                self.next_header.names.insert(player_id, name);
             }
             Record::BlockStart { .. } | Record::BlockEnd => {}
         }
@@ -445,6 +476,27 @@ impl GameState {
             id,
             ..Entity::default()
         })
+    }
+
+    fn hold(&mut self, name: String, tag: String, value: String) {
+        if self.held.len() == HELD_LIMIT {
+            self.held.pop_front();
+        }
+        self.held.push_back((name, tag, value));
+    }
+
+    /// The held changes of `name`, in log order.
+    fn take_held(&mut self, name: &str) -> Vec<(String, String)> {
+        let mut taken = Vec::new();
+        self.held.retain(|(n, tag, value)| {
+            if n == name {
+                taken.push((tag.clone(), value.clone()));
+                false
+            } else {
+                true
+            }
+        });
+        taken
     }
 
     /// Entity id for a reference. Player names are matched to players:

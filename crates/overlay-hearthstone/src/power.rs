@@ -1,18 +1,25 @@
 //! Splits `Power.log` lines into structured records.
 //!
-//! Only the `GameState` stream is used: `GameState.DebugPrintPower()` carries every
-//! change of the game, `GameState.DebugPrintGame()` the game header. The
-//! `PowerTaskList` stream repeats the same changes in animation order and is skipped.
+//! Hearthstone writes every change of the game twice: `GameState.DebugPrintPower()` when
+//! it arrives from the server, `PowerTaskList.DebugPrintPower()` when the client plays
+//! it. The two carry the same records, but the `GameState` stream runs ahead: a whole
+//! Battlegrounds combat arrives within a second, before its animation even starts. The
+//! game is therefore read from the `PowerTaskList` stream, so it matches what the player
+//! sees. The game header (`GameState.DebugPrintGame()`: mode, players) exists only in the
+//! `GameState` stream and comes before the game's `CREATE_GAME` in the `PowerTaskList`
+//! stream; `GameState`'s own `CREATE_GAME` marks where a new header begins.
 //!
 //! Example lines:
 //!
 //! ```text
 //! D 20:41:06.32 GameState.DebugPrintPower() - CREATE_GAME
-//! D 20:41:06.32 GameState.DebugPrintPower() -     Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=2]
-//! D 20:41:06.32 GameState.DebugPrintPower() - FULL_ENTITY - Creating ID=4 CardID=CATA_557
-//! D 20:41:06.32 GameState.DebugPrintPower() -     tag=ZONE value=HAND
-//! D 20:41:06.32 GameState.DebugPrintPower() - TAG_CHANGE Entity=[entityName=X id=35 zone=HAND zonePos=1 cardId= player=2] tag=ZONE value=PLAY
+//! D 20:41:06.32 GameState.DebugPrintGame() - GameType=GT_RANKED
 //! D 20:41:06.32 GameState.DebugPrintGame() - PlayerID=1, PlayerName=Name#1234
+//! D 20:41:06.32 PowerTaskList.DebugPrintPower() -     CREATE_GAME
+//! D 20:41:06.32 PowerTaskList.DebugPrintPower() -     Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=2]
+//! D 20:41:06.32 PowerTaskList.DebugPrintPower() - FULL_ENTITY - Creating ID=4 CardID=CATA_557
+//! D 20:41:06.32 PowerTaskList.DebugPrintPower() -     tag=ZONE value=HAND
+//! D 20:41:06.32 PowerTaskList.DebugPrintPower() - TAG_CHANGE Entity=[entityName=X id=35 zone=HAND zonePos=1 cardId= player=2] tag=ZONE value=PLAY
 //! ```
 
 /// How a line refers to an entity.
@@ -26,6 +33,8 @@ pub enum EntityRef {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Record {
+    /// The header of a new game follows (`CREATE_GAME` of the `GameState` stream).
+    HeaderStart,
     CreateGame,
     GameEntity {
         id: u32,
@@ -83,13 +92,16 @@ pub enum Record {
 pub fn parse_line(line: &str) -> Option<Record> {
     let (method, content) = split_prefix(line)?;
     match method {
-        "GameState.DebugPrintPower()" => parse_power(content.trim()),
+        "PowerTaskList.DebugPrintPower()" => parse_power(content.trim()),
         "GameState.DebugPrintGame()" => parse_game(content.trim()),
+        "GameState.DebugPrintPower()" if content.trim() == "CREATE_GAME" => {
+            Some(Record::HeaderStart)
+        }
         _ => None,
     }
 }
 
-/// `D 20:41:06.3226730 GameState.DebugPrintPower() - <content>` → (method, content).
+/// `D 20:41:06.3226730 PowerTaskList.DebugPrintPower() - <content>` → (method, content).
 fn split_prefix(line: &str) -> Option<(&str, &str)> {
     let rest = line.strip_prefix("D ")?;
     let (_time, rest) = rest.split_once(' ')?;
@@ -300,7 +312,7 @@ mod tests {
     use super::*;
 
     fn power(content: &str) -> String {
-        format!("D 20:41:06.3226730 GameState.DebugPrintPower() - {content}")
+        format!("D 20:41:06.3226730 PowerTaskList.DebugPrintPower() - {content}")
     }
 
     #[test]
@@ -429,9 +441,21 @@ mod tests {
     }
 
     #[test]
-    fn ignores_other_streams() {
-        let line = "D 20:41:06.32 PowerTaskList.DebugPrintPower() - CREATE_GAME";
-        assert_eq!(parse_line(line), None);
+    fn reads_the_game_from_the_power_task_list() {
+        let ahead = |c: &str| format!("D 20:41:06.32 GameState.DebugPrintPower() - {c}");
+        assert_eq!(parse_line(&ahead("CREATE_GAME")), Some(Record::HeaderStart));
+        assert_eq!(
+            parse_line(&ahead("TAG_CHANGE Entity=GameEntity tag=TURN value=2")),
+            None
+        );
+        assert_eq!(
+            parse_line(&power("    CREATE_GAME")),
+            Some(Record::CreateGame)
+        );
+        assert_eq!(
+            parse_line("D 20:41:06.32 PowerTaskList.DebugDump() - ID=1 ParentID=0"),
+            None
+        );
         assert_eq!(parse_line("garbage"), None);
     }
 }

@@ -85,6 +85,16 @@ export interface GameInfo {
   turn: number;
   current: Side | null;
   game_entity_id: number | null;
+  /** The user's deck when they chose one of their own; null for loaner decks and modes without one. */
+  deck: DeckChoice | null;
   friendly: SideInfo;
   opposing: SideInfo;
+}
+
+/** A deck the user chose for this game. */
+export interface DeckChoice {
+  name: string;
+  deck_id: number | null;
+  /** Deck code as Hearthstone exports it (base64 deckstring with card dbf ids). */
+  code: string;
 }

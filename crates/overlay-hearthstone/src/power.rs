@@ -86,6 +86,8 @@ pub enum Record {
         player_id: u32,
         name: String,
     },
+    /// The deck chosen for the next game (from `Decks.log`).
+    Deck(crate::decks::Deck),
 }
 
 /// Parses one line; `None` for lines of other streams or kinds that do not matter.

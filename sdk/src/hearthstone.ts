@@ -38,6 +38,8 @@ export type GameEvent =
   | { name: 'game-end'; data: { result: 'win' | 'loss' | 'tie' | 'unknown' } }
   /** A character attacks; `side` is the attacker's. */
   | { name: 'attack'; data: { attacker: number; defender: number | null; side: Side } }
+  /** A card in hand was prepared: it costs `mana` + 1 less in its owner's next turn. */
+  | { name: 'prepare'; data: { entity_id: number; side: Side; mana: number } }
   /** A new game begins (the entity mirror was cleared). */
   | { name: 'game-created' };
 

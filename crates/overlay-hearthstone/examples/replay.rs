@@ -41,6 +41,7 @@ fn main() {
                     "game-end"
                 }
                 GameEvent::Attack { .. } => "attack",
+                GameEvent::Prepare { .. } => "prepare",
                 GameEvent::GameCreated => "game-created",
                 GameEvent::EntityUpdate { .. } => "entity-update",
             };

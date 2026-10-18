@@ -119,6 +119,7 @@ With `game.events`, a mod receives what the host reads from Hearthstone's `Power
 | `card-revealed` | `entity_id`, `card_id`, `side`, `zone` |
 | `game-end` | `result` (`win`, `loss`, `tie`, `unknown`) |
 | `attack` | `attacker`, `defender` (entity ids), `side` of the attacker |
+| `prepare` | `entity_id` of a card in hand that was prepared (keyword *Prepare*), `side`, `mana` spent on it: in its owner's next turn it costs `mana` + 1 less. The card can stay hidden |
 | `game-created` | – a new game begins |
 
 `overlay.events.getInfo()` returns a summary of the running game (mode, turn, and per side: hero, hand, board, secrets, graveyard, deck size), and `onInfo(cb)` reports changes. Use it when your window starts in the middle of a game; `overlay.events.history()` returns the events of the game so far (without entity updates), so you can also catch up on what happened before. When the user plays one of their own decks, `deck` holds its name and deck code (read from Hearthstone's `Decks.log`); it is null for loaner decks and in modes without a deck.

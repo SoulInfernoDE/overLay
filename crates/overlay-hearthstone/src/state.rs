@@ -79,6 +79,13 @@ pub enum GameEvent {
         defender: Option<u32>,
         side: Side,
     },
+    /// A card in hand was prepared ("Prepare" keyword): the player spent `mana` on it,
+    /// and in their next turn it costs `mana` + 1 less. The card itself may stay hidden.
+    Prepare {
+        entity_id: u32,
+        side: Side,
+        mana: u32,
+    },
     /// A new game begins; mods drop what they know about the previous one.
     GameCreated,
     /// Low-level: an entity was created or tags of it changed (`tags` holds only what
@@ -447,6 +454,18 @@ impl GameState {
                 self.current_player = Some(player_id);
             }
             return;
+        }
+        // The game shows the mana spent on a prepared card for a moment, then resets it.
+        if tag == "PREPARE_REVEALED" && is_card {
+            let before = previous.as_deref().map_or(0, |v| v.parse().unwrap_or(0));
+            let mana: u32 = value.parse().unwrap_or(0);
+            if before == 0 && mana > 0 {
+                events.push(GameEvent::Prepare {
+                    entity_id: id,
+                    side: self.side(controller),
+                    mana,
+                });
+            }
         }
         if tag == "ZONE" && is_card && previous.as_ref() != Some(&value) {
             events.push(GameEvent::ZoneChange {

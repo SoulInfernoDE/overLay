@@ -225,3 +225,38 @@ fn attacks_become_events() {
         }
     ));
 }
+
+#[test]
+fn prepared_cards_become_one_event_each() {
+    let power = |c: &str| format!("D 10:00:00.0 PowerTaskList.DebugPrintPower() - {c}\n");
+    let card =
+        "[entityName=UNKNOWN ENTITY [cardType=INVALID] id=31 zone=HAND zonePos=6 cardId= player=1]";
+    let log = [
+        power("    CREATE_GAME"),
+        power("    GameEntity EntityID=1"),
+        power("    Player EntityID=2 PlayerID=1 GameAccountId=[hi=1 lo=1]"),
+        power("    Player EntityID=3 PlayerID=2 GameAccountId=[hi=2 lo=2]"),
+        power("FULL_ENTITY - Creating ID=31 CardID="),
+        power("    tag=CONTROLLER value=1"),
+        power("    tag=ZONE value=HAND"),
+        // As the game logs it: the spent mana, then a short 1, then 0 again.
+        power(&format!("BLOCK_START BlockType=DECK_ACTION Entity={card} EffectCardId=System.Collections.Generic.List`1[System.String] EffectIndex=0 Target=0 SubOption=-1 ")),
+        power(&format!("    TAG_CHANGE Entity={card} tag=PREPARE_REVEALED value=6 ")),
+        power("BLOCK_END"),
+        power(&format!("    TAG_CHANGE Entity={card} tag=PREPARE value=0 ")),
+        power(&format!("    TAG_CHANGE Entity={card} tag=PREPARE_REVEALED value=1 ")),
+        power(&format!("    TAG_CHANGE Entity={card} tag=PREPARE_REVEALED value=0 ")),
+    ]
+    .concat();
+    let (_, events) = run(&log);
+    let prepared: Vec<_> = events
+        .iter()
+        .filter_map(|e| match e {
+            GameEvent::Prepare {
+                entity_id, mana, ..
+            } => Some((*entity_id, *mana)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(prepared, [(31, 6)]);
+}

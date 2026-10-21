@@ -15,7 +15,7 @@
     "@fluent/langneg": "0.7.0",
     "@lucide/svelte": "1.57.0",
     "@overlay/sdk": "0.1.0",
-    "@tauri-apps/api": "2.12.3"
+    "@tauri-apps/api": "2.12.4"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

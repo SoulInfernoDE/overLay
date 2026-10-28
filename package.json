@@ -23,7 +23,7 @@
     "build:mods": "npm run build -w mods/hello-overlay"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "2.12.2",
+    "@tauri-apps/cli": "2.12.4",
     "prettier": "3.9.10",
     "prettier-plugin-svelte": "4.1.1"
   }
